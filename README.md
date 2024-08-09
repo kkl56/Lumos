@@ -36,7 +36,7 @@ Lumos was created by <a target="_blank" href="http://narechania.com">Arpit Narec
     - This should add/update contents inside the `server/public` folder.
 - Verify `Procfile` inside the `server` folder.
 - `heroku login`
-- If not added, add git remote: `git remote add heroku https://git.heroku.com/lumos-webapp-4aeadb3bf30d.git`
+- If not added, add git remote: `git remote add heroku https://git.heroku.com/lumos-webapp.git`
 - Set buildpack for this project: `heroku buildpacks:set heroku/python` (it might err that the buildpack is already set on your app. Good, nothing to worry then.)
 - Add, commit code via git.
 - Push only the `server` folder as a subtree (run it from the toplevel of the working tree): `git subtree push --prefix server heroku main`
