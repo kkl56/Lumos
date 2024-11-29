@@ -345,7 +345,7 @@ var MainActivityComponent = /** @class */ (function () {
             case "live":
                 this.global.appMode = "credit_risk.csv";
                 break;
-            case "colleges_sampled":
+            case "colleges":
                 this.global.appMode = "colleges.csv";
                 break;
         }
@@ -1816,7 +1816,7 @@ var SessionPage = /** @class */ (function () {
         this["app-practice"] = { completed: false, timestamp: 0 };
         this["app-live"] = { completed: false, timestamp: 0 };
         this["participantId"] = participantId; // 12 character long unique identifier
-        this["appMode"] = "colleges_sampled.csv"; // Name of the dataset
+        this["appMode"] = "colleges.csv"; // Name of the dataset
         this["appLevel"] = "live"; // Practice / Live
         // "appType": string = this.utils.generateRandomAppType(); // CONTROL / AWARENESS
         this["appType"] = "AWARENESS"; // CONTROL | ADMIN | AWARENESS

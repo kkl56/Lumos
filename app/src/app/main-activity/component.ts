@@ -111,7 +111,7 @@ export class MainActivityComponent implements OnInit, AfterViewInit {
       case "live":
         this.global.appMode = "credit_risk.csv";
         break;
-      case "colleges_sampled":
+      case "colleges":
         this.global.appMode = "colleges.csv";
         break;
     }

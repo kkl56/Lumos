@@ -13,7 +13,7 @@ import bias
 import bias_util
 
 # 设置日志
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # 创建输出目录
@@ -65,7 +65,7 @@ APP.router.add_route('GET', '/{fname:.*}', handle_ui_files)
 
 @SIO.event
 async def connect(sid, environ):
-    logger.warning(f"Connected: {sid}")
+    logger.info(f"Connected: {sid}")
     attr_dist = {}
     for filename in bias.DATA_MAP:
         dataset = bias.DATA_MAP[filename]
@@ -79,7 +79,7 @@ def disconnect(sid):
         pid = CLIENT_SOCKET_ID_PARTICIPANT_MAPPING[sid]
         if pid in CLIENTS:
             CLIENTS[pid]["disconnected_at"] = bias_util.get_current_time()
-            logger.warning(f"Disconnected: Participant ID: {pid} | Socket ID: {sid}")
+            logger.info(f"Disconnected: Participant ID: {pid} | Socket ID: {sid}")
 
 
 @SIO.event
@@ -96,13 +96,12 @@ async def on_session_end_page_level_logs(sid, payload):
 
             # persist to disk
             df_to_save.transpose().to_csv(filename, sep="\t")
-            logger.warning(f"Saved session logs to file: {filename}")
+            logger.info(f"Saved session logs to file: {filename}")
             
             # 发送确认消息给客户端
             await SIO.emit("logs_saved", {"status": "success", "filename": str(filename)}, room=sid)
     except Exception as e:
-        #logger.error(f"Error saving session logs: {e}")
-        logger.error(f"Error saving session logs")
+        logger.error(f"Error saving session logs: {e}")
         await SIO.emit("logs_saved", {"status": "error", "message": str(e)}, room=sid)
 
 
@@ -120,13 +119,12 @@ async def on_save_logs(sid, data):
 
                 # persist to disk
                 df_to_save.to_csv(filename, sep="\t")
-                logger.warning(f"Saved logs to file: {filename}")
+                logger.info(f"Saved logs to file: {filename}")
                 
                 # 发送确认消息给客户端
                 await SIO.emit("logs_saved", {"status": "success", "filename": str(filename)}, room=sid)
     except Exception as e:
-        #logger.error(f"Error saving logs: {e}")
-        logger.error(f"Error  saving logs")
+        logger.error(f"Error saving logs: {e}")
         await SIO.emit("logs_saved", {"status": "error", "message": str(e)}, room=sid)
 
 
@@ -155,7 +153,7 @@ async def on_interaction(sid, data):
             CLIENTS[pid]["connected_at"] = bias_util.get_current_time()
             CLIENTS[pid]["bias_logs"] = []
             CLIENTS[pid]["response_list"] = []
-            logger.warning(f"New participant connected: {pid}")
+            logger.info(f"New participant connected: {pid}")
 
         if app_mode != CLIENTS[pid]["app_mode"] or app_level != CLIENTS[pid]["app_level"]:
             # datasets have been switched => reset the logs array!
@@ -165,7 +163,7 @@ async def on_interaction(sid, data):
             CLIENTS[pid]["app_level"] = app_level
             CLIENTS[pid]["bias_logs"] = []
             CLIENTS[pid]["response_list"] = []
-            logger.warning(f"Reset logs for participant {pid} due to mode/level change")
+            logger.info(f"Reset logs for participant {pid} due to mode/level change")
 
         # record response to interaction
         response = {}
@@ -183,7 +181,7 @@ async def on_interaction(sid, data):
             CLIENTS[pid]["bias_logs"].append(data)
             metrics = bias.compute_metrics(app_mode, CLIENTS[pid]["bias_logs"])
             response["output_data"] = metrics
-            logger.warning(f"Computed bias metrics for participant {pid}")
+            logger.info(f"Computed bias metrics for participant {pid}")
         else:
             response["output_data"] = None
 
@@ -202,7 +200,7 @@ if __name__ == "__main__":
     try:
         bias.precompute_distributions()
         port = int(os.environ.get("PORT", 3000))
-        logger.warning(f"Starting server on port {port}")
+        logger.info(f"Starting server on port {port}")
         web.run_app(APP, port=port)
     except Exception as e:
         logger.error(f"Server startup error: {e}")
