@@ -17,9 +17,9 @@ export class SessionPage {
   "app-live": object = { completed: false, timestamp: 0 };
   "participantId": string = participantId; // 12 character long unique identifier
   "appMode": string = "colleges.csv"; // Name of the dataset
-  "appLevel": string = "live"; // Practice / Live
+  "appLevel": string = "colleges"; // Practice / Live
   // "appType": string = this.utils.generateRandomAppType(); // CONTROL / AWARENESS
-  "appType": string = "AWARENESS"; // CONTROL | ADMIN | AWARENESS
+  "appType": string = "ADMIN"; // CONTROL | ADMIN | AWARENESS
 }
 
 export const DeploymentConfig = Object.freeze({
