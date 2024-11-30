@@ -1,0 +1,22 @@
+{
+  "timestamp": 1732952738081,
+  "interaction_type": "mouseover_item",
+  "element_data": {
+    "id": "p217",
+    "x": {
+      "name": "Home Ownership Type",
+      "value": "Mortgage"
+    },
+    "y": {
+      "name": "Annual Income",
+      "value": 288000
+    },
+    "eventX": 549,
+    "eventY": 133
+  },
+  "app_info": {
+    "mode": "credit_risk.csv",
+    "type": "ADMIN",
+    "level": "live"
+  }
+}

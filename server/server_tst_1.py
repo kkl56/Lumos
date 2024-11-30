@@ -1,5 +1,6 @@
 """Server for interfacing with the frontend.
 """
+import asyncio
 import json
 import os
 from pathlib import Path
@@ -204,10 +205,16 @@ async def on_interaction(sid, data):
             await f.write(json.dumps(interaction_data, ensure_ascii=False, indent=2))
         """
         # 5. 将数据写入JSON文件
-        async with aiofiles.open(filename, 'w', encoding='utf-8') as f:
-            # ensure_ascii=False 确保中文正确显示
-            # indent=2 使JSON格式化便于阅读
-            await f.write(json.dumps(interaction_data, ensure_ascii=False, indent=2))
+        # async with aiofiles.open(filename, 'w', encoding='utf-8') as f:
+        #     # ensure_ascii=False 确保中文正确显示
+        #     # indent=2 使JSON格式化便于阅读
+        #     #await f.write(json.dumps(interaction_data, ensure_ascii=False, indent=2))
+        #     #f.write(json.dumps(interaction_data, ensure_ascii=False, indent=2))
+        #     await f.write(json.dumps(interaction_data, ensure_ascii=False, indent=2))
+        
+        asyncio.create_task(save_interaction_data(interaction_data, filename))
+        
+
 
         print(f"Saved interaction data to: {filename}")
 
@@ -243,6 +250,17 @@ async def on_interaction(sid, data):
     except Exception as e:
         logger.error(f"Error processing interaction: {e}")
         await SIO.emit("interaction_error", {"status": "error", "message": str(e)}, room=sid)
+
+
+# 定义保存数据的异步函数
+async def save_interaction_data(data, filename):
+    try:
+        async with aiofiles.open(filename, 'w', encoding='utf-8') as f:
+            await f.write(json.dumps(data, ensure_ascii=False, indent=2))
+        logger.info(f"Background save completed: {filename}")
+    except Exception as e:
+        logger.error(f"Background save failed: {e}")        
+
 
 
 if __name__ == "__main__":
