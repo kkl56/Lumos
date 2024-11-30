@@ -1,37 +1,54 @@
-<div class="chat-button" (click)="toggleChat()">
-    <i class="fas fa-robot"></i>
+<!-- 触发按钮 -->
+<button class="chat-trigger" (click)="toggleChat()" *ngIf="!isVisible">
+  <i class="fas fa-robot"></i>
+</button>
+
+<!-- 聊天窗口 -->
+<div class="chat-window" 
+     [class.visible]="isVisible"
+     [class.minimized]="isMinimized"
+     [style.left.px]="position.x"
+     [style.top.px]="position.y"
+     #chatWindow>
+  <div class="chat-header" 
+     (mousedown)="startDragging($event)"
+     #dragHandle>
+  <span class="title">AI Assistant</span>
+  <div class="controls">
+    <button class="minimize-btn" (click)="minimizeChat()">−</button>
+    <button class="close-btn" (click)="closeChat()">×</button>
   </div>
-  
-  <div class="chat-window" [class.minimized]="isMinimized" [class.hidden]="!isVisible">
-    <div class="chat-header">
-      <span>AI Assistant</span>
-      <div class="window-controls">
-        <button (click)="minimizeChat()" class="minimize-btn">
-          <i class="fas fa-minus"></i>
-        </button>
-        <button (click)="closeChat()" class="close-btn">
-          <i class="fas fa-times"></i>
-        </button>
+</div>
+
+  <!-- 聊天内容区域 -->
+  <!-- <div class="chat-messages" #scrollContainer>
+    <div *ngFor="let message of messages" 
+         [class.user-message]="message.isUser"
+         [class.error-message]="message.isError"
+         class="message">
+      {{ message.content }}
+    </div>
+  </div> -->
+  <div class="chat-messages" #scrollContainer>
+    <div *ngFor="let message of messages" 
+         [class.user-message]="message.isUser"
+         [class.error-message]="message.isError"
+         class="message">
+      <div class="avatar-circle">
+        {{ message.isUser ? 'Me' : 'AI' }}
+      </div>
+      <div class="message-content">
+        <div class="message-text">{{ message.content }}</div>
       </div>
     </div>
-    
-    <div class="chat-body">
-      <div class="messages" #scrollContainer>
-        <div *ngFor="let message of messages" 
-             [class.user-message]="message.isUser"
-             [class.ai-message]="!message.isUser"
-             class="message">
-          {{ message.content }}
-        </div>
-      </div>
-    </div>
-  
-    <div class="chat-input">
-      <textarea 
-        [(ngModel)]="userInput"
-        (keyup.enter)="sendMessage()"
-        placeholder="输入消息..."
-      ></textarea>
-      <button (click)="sendMessage()">发送</button>
-    </div>
   </div>
+
+  <!-- 输入区域 -->
+  <div class="chat-input">
+    <textarea [(ngModel)]="userInput" 
+              placeholder="输入消息..."
+              (keyup.enter)="sendMessage()"></textarea>
+    <button (click)="sendMessage()" 
+            [disabled]="isSending">发送</button>
+  </div>
+</div>

@@ -1,0 +1,22 @@
+{
+  "timestamp": 1732969520126,
+  "interaction_type": "mouseover_item",
+  "element_data": {
+    "id": "p249",
+    "x": {
+      "name": "Employment Length",
+      "value": 0
+    },
+    "y": {
+      "name": "Default History",
+      "value": "No"
+    },
+    "eventX": 753,
+    "eventY": 321
+  },
+  "app_info": {
+    "mode": "credit_risk.csv",
+    "type": "ADMIN",
+    "level": "live"
+  }
+}

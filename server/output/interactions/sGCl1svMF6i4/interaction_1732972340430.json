@@ -1,0 +1,15 @@
+{
+  "timestamp": 1732972340430,
+  "interaction_type": "toggle_attribute_accordion_awareness_panel",
+  "element_data": {
+    "attribute": "Annual Income",
+    "isExpanded": true,
+    "eventX": null,
+    "eventY": null
+  },
+  "app_info": {
+    "mode": "credit_risk.csv",
+    "type": "ADMIN",
+    "level": "live"
+  }
+}

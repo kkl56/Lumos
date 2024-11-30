@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, AfterViewChecked, OnInit, OnDestroy } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewChecked, OnInit, OnDestroy, NgZone } from '@angular/core';
 import { AiChatService } from '../../services/chat.service';
 import { Subscription } from 'rxjs';
 
@@ -14,7 +14,20 @@ interface ChatMessage {
   styleUrls: ['./chat-window.component.scss']
 })
 export class ChatWindowComponent implements AfterViewChecked, OnInit, OnDestroy {
+  
+  @ViewChild('chatWindow') chatWindow: ElementRef;
+  @ViewChild('dragHandle') dragHandle: ElementRef;
   @ViewChild('scrollContainer') private scrollContainer: ElementRef;
+
+  position = {
+    x: (window.innerWidth - 300) / 2,  // 300是窗口宽度
+    y: (window.innerHeight - 700) / 2  // 400是窗口高度
+  };  // 设置初始位置
+  private isDragging = false;
+  private dragOffset = { x: 0, y: 0 };
+  private hasBeenDragged = false; // 新增：标记是否被拖动过
+
+
   private connectionSubscription: Subscription;
   
   isSending = false;
@@ -23,7 +36,38 @@ export class ChatWindowComponent implements AfterViewChecked, OnInit, OnDestroy 
   messages: ChatMessage[] = [];
   userInput = '';
 
-  constructor(private aiChatService: AiChatService) {}
+  // position = { x: 100, y: 100 };  // 初始位置
+  // private isDragging = false;
+  // private dragOffset = { x: 0, y: 0 };
+
+  // @ViewChild('chatWindow') chatWindow: ElementRef;
+  // @ViewChild('dragHandle') dragHandle: ElementRef;
+
+  constructor(
+    private aiChatService: AiChatService,
+    private ngZone: NgZone  // 添加 NgZone
+  ) {
+    // 添加全局鼠标事件监听
+    this.ngZone.runOutsideAngular(() => {
+      window.addEventListener('mousemove', this.onMouseMove.bind(this));
+      window.addEventListener('mouseup', this.stopDragging.bind(this));
+    });
+  }
+
+  toggleChat() {
+    if (this.isMinimized) {
+      this.isMinimized = false;
+    } else {
+      this.isVisible = !this.isVisible;
+      if (!this.hasBeenDragged && this.isVisible) {
+        // 重置到屏幕中间
+        this.position = {
+          x: (window.innerWidth - 300) / 2,
+          y: (window.innerHeight - 700) / 2
+        };
+      }
+    }
+  }
 
   ngOnInit() {
     // 连接到服务器
@@ -43,6 +87,58 @@ export class ChatWindowComponent implements AfterViewChecked, OnInit, OnDestroy 
       });
   }
 
+
+
+  // toggleChat() {
+  //   if (this.isMinimized) {
+  //     this.isMinimized = false;
+  //   } else {
+  //     this.isVisible = !this.isVisible;
+  //     if (!this.hasBeenDragged && this.isVisible) {
+  //       // 重置位置到默认位置
+  //       this.position = { x: 0, y: 0 };
+  //     }
+  //   }
+  // }
+
+  startDragging(event: MouseEvent) {
+    if (event.target === this.dragHandle.nativeElement) {
+      this.isDragging = true;
+      const rect = this.chatWindow.nativeElement.getBoundingClientRect();
+      
+      if (!this.hasBeenDragged) {
+        // 第一次拖动时，设置初始位置
+        this.position = {
+          x: rect.left,
+          y: rect.top
+        };
+        this.hasBeenDragged = true;
+      }
+      
+      this.dragOffset = {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top
+      };
+      event.preventDefault();
+    }
+  }
+
+  private onMouseMove(event: MouseEvent) {
+    if (this.isDragging) {
+      this.ngZone.run(() => {
+        this.position = {
+          x: event.clientX - this.dragOffset.x,
+          y: event.clientY - this.dragOffset.y
+        };
+      });
+    }
+  }
+
+  private stopDragging() {
+    this.isDragging = false;
+  }
+
+
   ngOnDestroy() {
     // 清理订阅
     if (this.connectionSubscription) {
@@ -52,17 +148,46 @@ export class ChatWindowComponent implements AfterViewChecked, OnInit, OnDestroy 
     this.aiChatService.disconnectFromSocket();
   }
 
-  ngAfterViewChecked() {
-    this.scrollToBottom();
-  }
+  // startDragging(event: MouseEvent) {
+  //   if (event.target === this.dragHandle.nativeElement) {
+  //     this.isDragging = true;
+  //     const rect = this.chatWindow.nativeElement.getBoundingClientRect();
+  //     this.dragOffset = {
+  //       x: event.clientX - rect.left,
+  //       y: event.clientY - rect.top
+  //     };
+  //     event.preventDefault();
+  //   }
+  // }
 
-  toggleChat() {
-    if (this.isMinimized) {
-      this.isMinimized = false;
-    } else {
-      this.isVisible = !this.isVisible;
-    }
-  }
+  // private onMouseMove(event: MouseEvent) {
+  //   if (this.isDragging) {
+  //     this.ngZone.run(() => {
+  //       this.position = {
+  //         x: event.clientX - this.dragOffset.x,
+  //         y: event.clientY - this.dragOffset.y
+  //       };
+  //     });
+  //   }
+  // }
+
+  // private stopDragging() {
+  //   this.isDragging = false;
+  // }
+
+
+
+  // ngAfterViewChecked() {
+  //   this.scrollToBottom();
+  // }
+
+  // toggleChat() {
+  //   if (this.isMinimized) {
+  //     this.isMinimized = false;
+  //   } else {
+  //     this.isVisible = !this.isVisible;
+  //   }
+  // }
 
   minimizeChat() {
     this.isMinimized = true;
@@ -116,5 +241,9 @@ export class ChatWindowComponent implements AfterViewChecked, OnInit, OnDestroy 
       this.scrollContainer.nativeElement.scrollTop = 
         this.scrollContainer.nativeElement.scrollHeight;
     } catch(err) {}
+  }
+
+  ngAfterViewChecked() {
+    this.scrollToBottom();
   }
 }
