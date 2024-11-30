@@ -1,0 +1,16 @@
+{
+  "timestamp": 1732987668130,
+  "interaction_type": "chart_type_changed",
+  "element_data": {
+    "chartChanged": null,
+    "x": "Employment Length",
+    "y": "Loan Amount",
+    "eventX": null,
+    "eventY": null
+  },
+  "app_info": {
+    "mode": "credit_risk.csv",
+    "type": "ADMIN",
+    "level": "live"
+  }
+}

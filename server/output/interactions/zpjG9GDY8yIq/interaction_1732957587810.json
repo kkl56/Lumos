@@ -1,15 +1,16 @@
 {
-  "timestamp": 1732957587810,
-  "interaction_type": "toggle_attribute_bookmark_awareness_panel",
-  "element_data": {
-    "attribute": "Loan Amount",
-    "isBookmarked": true,
-    "eventX": null,
-    "eventY": null
-  },
-  "app_info": {
-    "mode": "credit_risk.csv",
-    "type": "ADMIN",
-    "level": "live"
+   "chatId": "991031",
+   "stream": false,
+   "detail": false,
+   "responseChatItemId": "9910",
+   "variables": {
+   "uid": "1",
+   "name": "张三"
+   },
+   "messages": [ 
+    {
+      "role": "user",
+      "content": "你知道我叫什么吗?"
+    }
+       ]
   }
-}

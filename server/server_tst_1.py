@@ -17,6 +17,9 @@ import bias
 import bias_util
 
 import aiohttp_cors
+
+import josn_data
+from josn_data import chat_history
 # 设置日志
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
@@ -39,7 +42,7 @@ COMPUTE_BIAS_FOR_TYPES = [
     "click_remove_item",
 ]
 
-
+ai_chat_history = josn_data.ChatHistory()
 # # CORS 中间件
 # @web.middleware
 # async def cors_middleware(request, handler):
@@ -98,58 +101,134 @@ async def handle_ui_files(request):
 
 #routes = web.RouteTableDef()
 @SIO.event
-async def send_chat_message(sid, data):  # 确保事件名称匹配
+async def send_chat_message(sid, data):
     try:
-        logger.info(f'Received message from {sid}: {data}')
+        logger.warning(f'Received message from {sid}: {data}')
         message = data.get('message', '')
+
+        # 检查 sid 是否在映射中
+        if sid not in CLIENT_SOCKET_ID_PARTICIPANT_MAPPING:
+            response = {
+                'content': '请先查看并交互图表数据后再开始对话',
+                'code': 'NO_PARTICIPANT',
+                'response': f'请先查看并交互图表数据后再开始对话'
+            }
+            await SIO.emit('receive_chat_response', response, room=sid)
+            return
+            
+        # 获取参与者ID
+        pid = CLIENT_SOCKET_ID_PARTICIPANT_MAPPING.get(sid)
+        if not pid:
+            response = {
+                'content': '请先查看图表数据并交互后再试试',
+                'code': 'INVALID_PARTICIPANT',
+                'response': f'请先查看图表数据并交互后再试试'
+
+            }
+            await SIO.emit('receive_chat_response', response, room=sid)
+            return
+
+            
+        json_data =josn_data.process_interaction_data(pid)
+        # 获取用户的聊天历史记录
+        print(f"pid: {pid}")    
+        print(f"json_data: {len(json_data)}")
+        chat_history =ai_chat_history.get_history(pid)
+        #chat_id = None
+        #last_response_id = None
+        chat_id = None
+        if chat_history and len(chat_history) > 0:
+            chat_id = chat_history[-1].get('chatId')
+        else:
+            chat_id = josn_data.generate_chat_id()
+
+            #last_response_id = None
+            
+        # 如果有生成场景描述
+        scene_description = "  "
+        if not chat_id:
+            scene_description = f"""
+            我是一名使用Lumos(https://github.com/lumos-vis/Lumos)进行数据分析的研究员。
+            当前正在分析用户ID为{pid}的交互数据。
+            """
+          
+        # 分析最近的交互数据
+        # 分析最近的交互数据
+        recent_interactions = ""
+        if json_data:
+            # 提取最近5条交互记录
+            # recent_data = json_data[:5]
+            
+            # 格式化输出交互记录
+            for interaction in json_data:
+                time = interaction.get('time', '')
+                action = interaction.get('interaction_type', '')
+                x_name = interaction.get('x_name', '')
+                x_value = interaction.get('x_value', '')
+                y_name = interaction.get('y_name', '')
+                y_value = interaction.get('y_value', '')
+                
+                recent_interactions += f"""
+                时间: {time}
+                操作: {action}
+                X轴: {x_name} = {x_value}
+                Y轴: {y_name} = {y_value}
+                -------------------"""
+        else:
+            recent_interactions = "暂无交互记录"
+        # 构建完整的上下文消息
+        context_message = f"""
+        {scene_description}
         
-        # 发送响应
-        response = {
-            'response': f'服务器收到消息: {message}'
-        }
-        logger.info(f'Sending response to {sid}: {response}')
-        await SIO.emit('receive_chat_response', response, room=sid)
+        最近的交互记录:
+        {recent_interactions}
+        
+        用户问题:
+        {message}
+        """
+        print(f"context_message: {context_message}")    
+        # 调用AI接口获取响应
+        ai_response = josn_data.get_ai_response(
+            message=context_message,
+            participant_id=pid,
+            chat_id=chat_id,
+            #last_response_id=last_response_id
+        )
+
+        if ai_response['code'] == 200:
+            # {'code': 200, 'data': {'content': '请告诉我您的问题，我将尽力帮助您解答。', 'chatId': '8599165123'}, 'message': '获取成功'}
+            chatId = ai_response['data']['chatId']
+            content=ai_response['data']['content']
+            #responseId = ai_response['data']['response_id']  # 返回响应ID供下次使用
+            ai_chat_history.add_message(pid=pid, chat_id=chatId, content=content)
+            # 构造响应数据
+            #print(f"ai_response['data']['content']: {ai_response['data']['content']}")
+            #ai_response_content = ai_response['data']['content']
+            #ai_response_content = ai_response['data']['content'].replace('\n', '')
+            response = {
+                # 'content': ai_response['data']['content'],
+                # 'response': f'{content}'
+                'response': f'{content}'
+                #'chatId': ai_response['data']['chatId'],
+                #'responseId': ai_response['data']['response_id']  # 返回响应ID供下次使用
+            }
+            logger.info(f'Sending response to {sid}: {response}')
+            await SIO.emit('receive_chat_response', response, room=sid)
+        else:
+            # 发生错误时返回错误信息
+            error_response = {
+                'error': ai_response['message']
+            }
+            logger.error(f'Error response for {sid}: {error_response}')
+            await SIO.emit('chat_error', error_response, room=sid)
         
     except Exception as e:
         logger.error(f'Error processing message: {str(e)}')
         await SIO.emit('chat_error', {'error': str(e)}, room=sid)
 
 
-# async def handle_chat(request):
-#     try:
-#         data = await request.json()
-#         message = data.get('message')
-        
-#         # 添加错误处理和日志
-#         if not message:
-#             logger.error("收到空消息")
-#             return web.json_response({
-#                 'error': '消息不能为空'
-#             }, status=400)
-#         # 添加日志记录
-#         logger.warning(f"收到聊天消息: {message}")
-        
-#         # TODO: 实现实际的 AI 处理逻辑
-#         response = "这是一个测试响应"  # 临时响应
-                
 
 
-
-    #     # TODO: 实现与 AI 的通信逻辑
-        
-    #     return web.json_response({
-    #         'response': response
-    #     })
-    # except Exception as e:
-    #     logger.error(f"处理聊天消息时出错: {str(e)}")
-    #     return web.json_response({
-    #         'error': '服务器内部错误'
-    #     }, status=500)
-
-
-
-# 注册路由
-#APP.add_routes(routes)
 
 
 

@@ -1,0 +1,22 @@
+{
+  "timestamp": 1732994604685,
+  "interaction_type": "mouseout_item",
+  "element_data": {
+    "id": "p181",
+    "x": {
+      "name": "Annual Income",
+      "value": 250000
+    },
+    "y": {
+      "name": "Annual Income",
+      "value": 250000
+    },
+    "eventX": 1168,
+    "eventY": 222
+  },
+  "app_info": {
+    "mode": "credit_risk.csv",
+    "type": "ADMIN",
+    "level": "live"
+  }
+}

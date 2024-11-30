@@ -1,0 +1,19 @@
+{
+  "timestamp": 1732987680196,
+  "interaction_type": "filter_changed",
+  "element_data": {
+    "attribute": "Annual Income",
+    "value": [
+      131300,
+      336000
+    ],
+    "filterType": "sliderChange",
+    "eventX": null,
+    "eventY": null
+  },
+  "app_info": {
+    "mode": "credit_risk.csv",
+    "type": "ADMIN",
+    "level": "live"
+  }
+}

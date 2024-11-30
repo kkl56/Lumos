@@ -1,0 +1,22 @@
+{
+  "timestamp": 1732996891279,
+  "interaction_type": "click_add_item",
+  "element_data": {
+    "id": "p204",
+    "x": {
+      "name": "Age",
+      "value": 22
+    },
+    "y": {
+      "name": "Loan Amount",
+      "value": 7000
+    },
+    "eventX": 768,
+    "eventY": 354
+  },
+  "app_info": {
+    "mode": "credit_risk.csv",
+    "type": "ADMIN",
+    "level": "live"
+  }
+}

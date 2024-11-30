@@ -1,0 +1,22 @@
+{
+  "timestamp": 1732996401644,
+  "interaction_type": "mouseout_item",
+  "element_data": {
+    "id": "p206",
+    "x": {
+      "name": "Annual Income",
+      "value": 70000
+    },
+    "y": {
+      "name": "Home Ownership Type",
+      "value": "Own"
+    },
+    "eventX": 865,
+    "eventY": 222
+  },
+  "app_info": {
+    "mode": "credit_risk.csv",
+    "type": "ADMIN",
+    "level": "live"
+  }
+}

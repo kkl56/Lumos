@@ -1,0 +1,19 @@
+{
+  "timestamp": 1732987685910,
+  "interaction_type": "filter_changed",
+  "element_data": {
+    "attribute": "Employment Length",
+    "value": [
+      0,
+      123
+    ],
+    "filterType": "sliderChange",
+    "eventX": null,
+    "eventY": null
+  },
+  "app_info": {
+    "mode": "credit_risk.csv",
+    "type": "ADMIN",
+    "level": "live"
+  }
+}

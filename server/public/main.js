@@ -172,9 +172,22 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+// const config: SocketIoConfig = {
+//   url: DeploymentConfig.SERVER_URL,
+//   options: { timeout: 60000, autoConnect: false },
+// };
 var config = {
+    // url: 'http://localhost:3000', 
     url: _models_config__WEBPACK_IMPORTED_MODULE_15__["DeploymentConfig"].SERVER_URL,
-    options: { timeout: 60000, autoConnect: false },
+    options: {
+        // transports: ['websocket'],
+        autoConnect: false,
+        reconnection: true,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000,
+        reconnectionAttempts: 5,
+        timeout: 60000
+    }
 };
 var AppModule = /** @class */ (function () {
     function AppModule() {
@@ -226,7 +239,7 @@ var AppModule = /** @class */ (function () {
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"chat-button\" (click)=\"toggleChat()\">\r\n    <i class=\"fas fa-robot\"></i>\r\n  </div>\r\n  \r\n  <div class=\"chat-window\" [class.minimized]=\"isMinimized\" [class.hidden]=\"!isVisible\">\r\n    <div class=\"chat-header\">\r\n      <span>AI Assistant</span>\r\n      <div class=\"window-controls\">\r\n        <button (click)=\"minimizeChat()\" class=\"minimize-btn\">\r\n          <i class=\"fas fa-minus\"></i>\r\n        </button>\r\n        <button (click)=\"closeChat()\" class=\"close-btn\">\r\n          <i class=\"fas fa-times\"></i>\r\n        </button>\r\n      </div>\r\n    </div>\r\n    \r\n    <div class=\"chat-body\">\r\n      <div class=\"messages\" #scrollContainer>\r\n        <div *ngFor=\"let message of messages\" \r\n             [class.user-message]=\"message.isUser\"\r\n             [class.ai-message]=\"!message.isUser\"\r\n             class=\"message\">\r\n          {{ message.content }}\r\n        </div>\r\n      </div>\r\n    </div>\r\n  \r\n    <div class=\"chat-input\">\r\n      <textarea \r\n        [(ngModel)]=\"userInput\"\r\n        (keyup.enter)=\"sendMessage()\"\r\n        placeholder=\"输入消息...\"\r\n      ></textarea>\r\n      <button (click)=\"sendMessage()\">发送</button>\r\n    </div>\r\n  </div>"
+module.exports = "<!-- 触发按钮 -->\r\n<button class=\"chat-trigger\" (click)=\"toggleChat()\" *ngIf=\"!isVisible\">\r\n\r\n  <i class=\"fas fa-robot\"></i>\r\n</button>\r\n\r\n<!-- 聊天窗口 -->\r\n<div class=\"chat-window\" \r\n     [class.visible]=\"isVisible\"\r\n     [class.minimized]=\"isMinimized\"\r\n     [style.left.px]=\"position.x\"\r\n     [style.top.px]=\"position.y\"\r\n     #chatWindow>\r\n\r\n  <!-- 聊天窗口头部 -->\r\n  <div class=\"chat-header\" \r\n     (mousedown)=\"startDragging($event)\"\r\n     #dragHandle>\r\n  <span class=\"title\">AI Assistant</span>\r\n  <div class=\"controls\">\r\n      <button class=\"minimize-btn\" (click)=\"minimizeChat()\">−</button>\r\n      <button class=\"close-btn\" (click)=\"closeChat()\">×</button>\r\n    </div>\r\n  </div>\r\n\r\n  <!-- 聊天内容区域 -->\r\n  <!-- <div class=\"chat-messages\" #scrollContainer>\r\n    <div *ngFor=\"let message of messages\" \r\n         [class.user-message]=\"message.isUser\"\r\n         [class.error-message]=\"message.isError\"\r\n         class=\"message\">\r\n      {{ message.content }}\r\n    </div>\r\n  </div> -->\r\n  <div class=\"chat-messages\" #scrollContainer>\r\n    <div *ngFor=\"let message of messages\" class=\"message\"\r\n         [class.user-message]=\"message.isUser\"\r\n         [class.error-message]=\"message.isError\">\r\n      <div class=\"avatar-circle\">\r\n        {{ message.isUser ? 'Me' : 'AI' }}\r\n      </div>\r\n      <div class=\"message-content\">\r\n        <div class=\"message-text\">{{ message.content }}</div>\r\n      </div>\r\n    </div>\r\n  </div>\r\n\r\n  <!-- 输入区域 -->\r\n  <div class=\"chat-input\">\r\n    <textarea [(ngModel)]=\"userInput\" \r\n              placeholder=\"输入消息...\"\r\n              (keyup.enter)=\"sendMessage()\"></textarea>\r\n    <button (click)=\"sendMessage()\" \r\n            [disabled]=\"isSending\">发送</button>\r\n  </div>\r\n</div>"
 
 /***/ }),
 
@@ -237,7 +250,7 @@ module.exports = "<div class=\"chat-button\" (click)=\"toggleChat()\">\r\n    <i
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = ".chat-button {\n  position: fixed;\n  right: -25px;\n  bottom: 20%;\n  width: 50px;\n  height: 50px;\n  border-radius: 50% 0 0 50%;\n  background: rgba(74, 144, 226, 0.6);\n  color: white;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  cursor: pointer;\n  box-shadow: -2px 2px 10px rgba(0, 0, 0, 0.2);\n  z-index: 1000;\n  transition: all 0.3s ease;\n  opacity: 0.88;\n  padding-right: 25px;\n}\n.chat-button i {\n  font-size: 24px;\n  transition: transform 0.3s ease;\n  margin-left: -10px;\n}\n.chat-button:hover {\n  right: 0;\n  opacity: 0.8;\n  background: rgba(74, 144, 226, 0.8);\n}\n.chat-button.active {\n  right: 0;\n  opacity: 1;\n  background: rgb(74, 144, 226);\n  border-radius: 50%;\n}\n.chat-window {\n  position: fixed;\n  right: 70px;\n  bottom: 20%;\n  width: 350px;\n  height: 500px;\n  background: white;\n  border-radius: 10px;\n  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);\n  display: flex;\n  flex-direction: column;\n  z-index: 999;\n}\n.chat-window.minimized {\n  height: 45px;\n  overflow: hidden;\n}\n.chat-window.hidden {\n  display: none;\n}\n.chat-header {\n  padding: 10px 15px;\n  background: #4a90e2;\n  color: white;\n  border-radius: 10px 10px 0 0;\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n}\n.chat-header .window-controls button {\n  background: none;\n  border: none;\n  color: white;\n  margin-left: 10px;\n  cursor: pointer;\n}\n.chat-header .window-controls button:hover {\n  opacity: 0.8;\n}\n.chat-body {\n  flex: 1;\n  overflow-y: auto;\n  padding: 15px;\n}\n.chat-body .messages {\n  display: flex;\n  flex-direction: column;\n  gap: 10px;\n}\n.chat-body .message {\n  max-width: 80%;\n  padding: 10px;\n  border-radius: 10px;\n}\n.chat-body .message.user-message {\n  align-self: flex-end;\n  background: #4a90e2;\n  color: white;\n}\n.chat-body .message.ai-message {\n  align-self: flex-start;\n  background: #f1f1f1;\n  color: black;\n}\n.chat-input {\n  padding: 15px;\n  border-top: 1px solid #eee;\n  display: flex;\n  gap: 10px;\n}\n.chat-input textarea {\n  flex: 1;\n  padding: 8px;\n  border: 1px solid #ddd;\n  border-radius: 5px;\n  resize: none;\n  height: 40px;\n}\n.chat-input button {\n  padding: 8px 15px;\n  background: #4a90e2;\n  color: white;\n  border: none;\n  border-radius: 5px;\n  cursor: pointer;\n}\n.chat-input button:hover {\n  background: #357abd;\n}\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNyYy9hcHAvY29tcG9uZW50cy9jaGF0LXdpbmRvdy9EOlxcVXNlcnNcXEFkbWluaXN0cmF0b3JcXERlc2t0b3BcXGRldlxcdGVzdF9sdW1vc1xcTHVtb3NcXGFwcC9zcmNcXGFwcFxcY29tcG9uZW50c1xcY2hhdC13aW5kb3dcXGNoYXQtd2luZG93LmNvbXBvbmVudC5zY3NzIiwic3JjL2FwcC9jb21wb25lbnRzL2NoYXQtd2luZG93L2NoYXQtd2luZG93LmNvbXBvbmVudC5zY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBO0VBQ0UsZUFBQTtFQUNBLFlBQUE7RUFDQSxXQUFBO0VBQ0EsV0FBQTtFQUNBLFlBQUE7RUFDQSwwQkFBQTtFQUNBLG1DQUFBO0VBQ0EsWUFBQTtFQUNBLGFBQUE7RUFDQSxtQkFBQTtFQUNBLHVCQUFBO0VBQ0EsZUFBQTtFQUNBLDRDQUFBO0VBQ0EsYUFBQTtFQUNBLHlCQUFBO0VBQ0EsYUFBQTtFQUNBLG1CQUFBO0FDQ0Y7QURDRTtFQUNFLGVBQUE7RUFDQSwrQkFBQTtFQUNBLGtCQUFBO0FDQ0o7QURHRTtFQUNFLFFBQUE7RUFDQSxZQUFBO0VBQ0EsbUNBQUE7QUNESjtBREtFO0VBQ0UsUUFBQTtFQUNBLFVBQUE7RUFDQSw2QkFBQTtFQUNBLGtCQUFBO0FDSEo7QURPRTtFQUNFLGVBQUE7RUFLQSxXQUFBO0VBQ0EsV0FBQTtFQUNBLFlBQUE7RUFDQSxhQUFBO0VBQ0EsaUJBQUE7RUFDQSxtQkFBQTtFQUNBLHlDQUFBO0VBQ0EsYUFBQTtFQUNBLHNCQUFBO0VBQ0EsWUFBQTtBQ1JKO0FEVUk7RUFDRSxZQUFBO0VBQ0EsZ0JBQUE7QUNSTjtBRFdJO0VBQ0UsYUFBQTtBQ1ROO0FEYUU7RUFDRSxrQkFBQTtFQUNBLG1CQUFBO0VBQ0EsWUFBQTtFQUNBLDRCQUFBO0VBQ0EsYUFBQTtFQUNBLDhCQUFBO0VBQ0EsbUJBQUE7QUNWSjtBRGFNO0VBQ0UsZ0JBQUE7RUFDQSxZQUFBO0VBQ0EsWUFBQTtFQUNBLGlCQUFBO0VBQ0EsZUFBQTtBQ1hSO0FEYVE7RUFDRSxZQUFBO0FDWFY7QURpQkU7RUFDRSxPQUFBO0VBQ0EsZ0JBQUE7RUFDQSxhQUFBO0FDZEo7QURnQkk7RUFDRSxhQUFBO0VBQ0Esc0JBQUE7RUFDQSxTQUFBO0FDZE47QURpQkk7RUFDRSxjQUFBO0VBQ0EsYUFBQTtFQUNBLG1CQUFBO0FDZk47QURpQk07RUFDRSxvQkFBQTtFQUNBLG1CQUFBO0VBQ0EsWUFBQTtBQ2ZSO0FEa0JNO0VBQ0Usc0JBQUE7RUFDQSxtQkFBQTtFQUNBLFlBQUE7QUNoQlI7QURxQkU7RUFDRSxhQUFBO0VBQ0EsMEJBQUE7RUFDQSxhQUFBO0VBQ0EsU0FBQTtBQ2xCSjtBRG9CSTtFQUNFLE9BQUE7RUFDQSxZQUFBO0VBQ0Esc0JBQUE7RUFDQSxrQkFBQTtFQUNBLFlBQUE7RUFDQSxZQUFBO0FDbEJOO0FEcUJJO0VBQ0UsaUJBQUE7RUFDQSxtQkFBQTtFQUNBLFlBQUE7RUFDQSxZQUFBO0VBQ0Esa0JBQUE7RUFDQSxlQUFBO0FDbkJOO0FEcUJNO0VBQ0UsbUJBQUE7QUNuQlIiLCJmaWxlIjoic3JjL2FwcC9jb21wb25lbnRzL2NoYXQtd2luZG93L2NoYXQtd2luZG93LmNvbXBvbmVudC5zY3NzIiwic291cmNlc0NvbnRlbnQiOlsiLmNoYXQtYnV0dG9uIHtcclxuICBwb3NpdGlvbjogZml4ZWQ7XHJcbiAgcmlnaHQ6IC0yNXB4OyAvLyDliJ3lp4vkvY3nva7lnKjlsY/luZXlpJZcclxuICBib3R0b206IDIwJTtcclxuICB3aWR0aDogNTBweDtcclxuICBoZWlnaHQ6IDUwcHg7XHJcbiAgYm9yZGVyLXJhZGl1czogNTAlIDAgMCA1MCU7IC8vIOS/ruaUueS4uuWNiuWchuW9olxyXG4gIGJhY2tncm91bmQ6IHJnYmEoNzQsIDE0NCwgMjI2LCAwLjYpO1xyXG4gIGNvbG9yOiB3aGl0ZTtcclxuICBkaXNwbGF5OiBmbGV4O1xyXG4gIGFsaWduLWl0ZW1zOiBjZW50ZXI7XHJcbiAganVzdGlmeS1jb250ZW50OiBjZW50ZXI7XHJcbiAgY3Vyc29yOiBwb2ludGVyO1xyXG4gIGJveC1zaGFkb3c6IC0ycHggMnB4IDEwcHggcmdiYSgwLDAsMCwwLjIpO1xyXG4gIHotaW5kZXg6IDEwMDA7XHJcbiAgdHJhbnNpdGlvbjogYWxsIDAuM3MgZWFzZTtcclxuICBvcGFjaXR5OiAwLjg4O1xyXG4gIHBhZGRpbmctcmlnaHQ6IDI1cHg7IC8vIOS4uuWbvuagh+eVmeWHuuepuumXtFxyXG4gIFxyXG4gIGkge1xyXG4gICAgZm9udC1zaXplOiAyNHB4O1xyXG4gICAgdHJhbnNpdGlvbjogdHJhbnNmb3JtIDAuM3MgZWFzZTtcclxuICAgIG1hcmdpbi1sZWZ0OiAtMTBweDsgLy8g6LCD5pW05Zu+5qCH5L2N572uXHJcbiAgfVxyXG4gIFxyXG4gIC8vIOm8oOagh+aCrOWBnOaXtua7keWHulxyXG4gICY6aG92ZXIge1xyXG4gICAgcmlnaHQ6IDA7XHJcbiAgICBvcGFjaXR5OiAwLjg7XHJcbiAgICBiYWNrZ3JvdW5kOiByZ2JhKDc0LCAxNDQsIDIyNiwgMC44KTtcclxuICB9XHJcbiAgXHJcbiAgLy8g5r+A5rS754q25oCB77yI6IGK5aSp56qX5Y+j5omT5byA5pe277yJXHJcbiAgJi5hY3RpdmUge1xyXG4gICAgcmlnaHQ6IDA7XHJcbiAgICBvcGFjaXR5OiAxO1xyXG4gICAgYmFja2dyb3VuZDogcmdiYSg3NCwgMTQ0LCAyMjYsIDEpO1xyXG4gICAgYm9yZGVyLXJhZGl1czogNTAlOyAvLyDmgaLlpI3kuLrlnIblvaJcclxuICB9XHJcbiAgfVxyXG4gIFxyXG4gIC5jaGF0LXdpbmRvdyB7XHJcbiAgICBwb3NpdGlvbjogZml4ZWQ7XHJcbiAgICAvLyByaWdodDogMjBweDtcclxuICAgIC8vIGJvdHRvbTogODBweDtcclxuICAgIC8vIHdpZHRoOiAzNTBweDtcclxuICAgIC8vIGhlaWdodDogNTAwcHg7XHJcbiAgICByaWdodDogNzBweDsgLy8g6LCD5pW05L2N572u77yM6YG/5YWN5LiO5oyJ6ZKu6YeN5Y+gXHJcbiAgICBib3R0b206IDIwJTtcclxuICAgIHdpZHRoOiAzNTBweDtcclxuICAgIGhlaWdodDogNTAwcHg7XHJcbiAgICBiYWNrZ3JvdW5kOiB3aGl0ZTtcclxuICAgIGJvcmRlci1yYWRpdXM6IDEwcHg7XHJcbiAgICBib3gtc2hhZG93OiAwIDVweCAxNXB4IHJnYmEoMCwwLDAsMC4yKTtcclxuICAgIGRpc3BsYXk6IGZsZXg7XHJcbiAgICBmbGV4LWRpcmVjdGlvbjogY29sdW1uO1xyXG4gICAgei1pbmRleDogOTk5O1xyXG4gICAgXHJcbiAgICAmLm1pbmltaXplZCB7XHJcbiAgICAgIGhlaWdodDogNDVweDtcclxuICAgICAgb3ZlcmZsb3c6IGhpZGRlbjtcclxuICAgIH1cclxuICAgIFxyXG4gICAgJi5oaWRkZW4ge1xyXG4gICAgICBkaXNwbGF5OiBub25lO1xyXG4gICAgfVxyXG4gIH1cclxuICBcclxuICAuY2hhdC1oZWFkZXIge1xyXG4gICAgcGFkZGluZzogMTBweCAxNXB4O1xyXG4gICAgYmFja2dyb3VuZDogIzRhOTBlMjtcclxuICAgIGNvbG9yOiB3aGl0ZTtcclxuICAgIGJvcmRlci1yYWRpdXM6IDEwcHggMTBweCAwIDA7XHJcbiAgICBkaXNwbGF5OiBmbGV4O1xyXG4gICAganVzdGlmeS1jb250ZW50OiBzcGFjZS1iZXR3ZWVuO1xyXG4gICAgYWxpZ24taXRlbXM6IGNlbnRlcjtcclxuICAgIFxyXG4gICAgLndpbmRvdy1jb250cm9scyB7XHJcbiAgICAgIGJ1dHRvbiB7XHJcbiAgICAgICAgYmFja2dyb3VuZDogbm9uZTtcclxuICAgICAgICBib3JkZXI6IG5vbmU7XHJcbiAgICAgICAgY29sb3I6IHdoaXRlO1xyXG4gICAgICAgIG1hcmdpbi1sZWZ0OiAxMHB4O1xyXG4gICAgICAgIGN1cnNvcjogcG9pbnRlcjtcclxuICAgICAgICBcclxuICAgICAgICAmOmhvdmVyIHtcclxuICAgICAgICAgIG9wYWNpdHk6IDAuODtcclxuICAgICAgICB9XHJcbiAgICAgIH1cclxuICAgIH1cclxuICB9XHJcbiAgXHJcbiAgLmNoYXQtYm9keSB7XHJcbiAgICBmbGV4OiAxO1xyXG4gICAgb3ZlcmZsb3cteTogYXV0bztcclxuICAgIHBhZGRpbmc6IDE1cHg7XHJcbiAgICBcclxuICAgIC5tZXNzYWdlcyB7XHJcbiAgICAgIGRpc3BsYXk6IGZsZXg7XHJcbiAgICAgIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47XHJcbiAgICAgIGdhcDogMTBweDtcclxuICAgIH1cclxuICAgIFxyXG4gICAgLm1lc3NhZ2Uge1xyXG4gICAgICBtYXgtd2lkdGg6IDgwJTtcclxuICAgICAgcGFkZGluZzogMTBweDtcclxuICAgICAgYm9yZGVyLXJhZGl1czogMTBweDtcclxuICAgICAgXHJcbiAgICAgICYudXNlci1tZXNzYWdlIHtcclxuICAgICAgICBhbGlnbi1zZWxmOiBmbGV4LWVuZDtcclxuICAgICAgICBiYWNrZ3JvdW5kOiAjNGE5MGUyO1xyXG4gICAgICAgIGNvbG9yOiB3aGl0ZTtcclxuICAgICAgfVxyXG4gICAgICBcclxuICAgICAgJi5haS1tZXNzYWdlIHtcclxuICAgICAgICBhbGlnbi1zZWxmOiBmbGV4LXN0YXJ0O1xyXG4gICAgICAgIGJhY2tncm91bmQ6ICNmMWYxZjE7XHJcbiAgICAgICAgY29sb3I6IGJsYWNrO1xyXG4gICAgICB9XHJcbiAgICB9XHJcbiAgfVxyXG4gIFxyXG4gIC5jaGF0LWlucHV0IHtcclxuICAgIHBhZGRpbmc6IDE1cHg7XHJcbiAgICBib3JkZXItdG9wOiAxcHggc29saWQgI2VlZTtcclxuICAgIGRpc3BsYXk6IGZsZXg7XHJcbiAgICBnYXA6IDEwcHg7XHJcbiAgICBcclxuICAgIHRleHRhcmVhIHtcclxuICAgICAgZmxleDogMTtcclxuICAgICAgcGFkZGluZzogOHB4O1xyXG4gICAgICBib3JkZXI6IDFweCBzb2xpZCAjZGRkO1xyXG4gICAgICBib3JkZXItcmFkaXVzOiA1cHg7XHJcbiAgICAgIHJlc2l6ZTogbm9uZTtcclxuICAgICAgaGVpZ2h0OiA0MHB4O1xyXG4gICAgfVxyXG4gICAgXHJcbiAgICBidXR0b24ge1xyXG4gICAgICBwYWRkaW5nOiA4cHggMTVweDtcclxuICAgICAgYmFja2dyb3VuZDogIzRhOTBlMjtcclxuICAgICAgY29sb3I6IHdoaXRlO1xyXG4gICAgICBib3JkZXI6IG5vbmU7XHJcbiAgICAgIGJvcmRlci1yYWRpdXM6IDVweDtcclxuICAgICAgY3Vyc29yOiBwb2ludGVyO1xyXG4gICAgICBcclxuICAgICAgJjpob3ZlciB7XHJcbiAgICAgICAgYmFja2dyb3VuZDogIzM1N2FiZDtcclxuICAgICAgfVxyXG4gICAgfVxyXG4gIH0iLCIuY2hhdC1idXR0b24ge1xuICBwb3NpdGlvbjogZml4ZWQ7XG4gIHJpZ2h0OiAtMjVweDtcbiAgYm90dG9tOiAyMCU7XG4gIHdpZHRoOiA1MHB4O1xuICBoZWlnaHQ6IDUwcHg7XG4gIGJvcmRlci1yYWRpdXM6IDUwJSAwIDAgNTAlO1xuICBiYWNrZ3JvdW5kOiByZ2JhKDc0LCAxNDQsIDIyNiwgMC42KTtcbiAgY29sb3I6IHdoaXRlO1xuICBkaXNwbGF5OiBmbGV4O1xuICBhbGlnbi1pdGVtczogY2VudGVyO1xuICBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjtcbiAgY3Vyc29yOiBwb2ludGVyO1xuICBib3gtc2hhZG93OiAtMnB4IDJweCAxMHB4IHJnYmEoMCwgMCwgMCwgMC4yKTtcbiAgei1pbmRleDogMTAwMDtcbiAgdHJhbnNpdGlvbjogYWxsIDAuM3MgZWFzZTtcbiAgb3BhY2l0eTogMC44ODtcbiAgcGFkZGluZy1yaWdodDogMjVweDtcbn1cbi5jaGF0LWJ1dHRvbiBpIHtcbiAgZm9udC1zaXplOiAyNHB4O1xuICB0cmFuc2l0aW9uOiB0cmFuc2Zvcm0gMC4zcyBlYXNlO1xuICBtYXJnaW4tbGVmdDogLTEwcHg7XG59XG4uY2hhdC1idXR0b246aG92ZXIge1xuICByaWdodDogMDtcbiAgb3BhY2l0eTogMC44O1xuICBiYWNrZ3JvdW5kOiByZ2JhKDc0LCAxNDQsIDIyNiwgMC44KTtcbn1cbi5jaGF0LWJ1dHRvbi5hY3RpdmUge1xuICByaWdodDogMDtcbiAgb3BhY2l0eTogMTtcbiAgYmFja2dyb3VuZDogcmdiKDc0LCAxNDQsIDIyNik7XG4gIGJvcmRlci1yYWRpdXM6IDUwJTtcbn1cblxuLmNoYXQtd2luZG93IHtcbiAgcG9zaXRpb246IGZpeGVkO1xuICByaWdodDogNzBweDtcbiAgYm90dG9tOiAyMCU7XG4gIHdpZHRoOiAzNTBweDtcbiAgaGVpZ2h0OiA1MDBweDtcbiAgYmFja2dyb3VuZDogd2hpdGU7XG4gIGJvcmRlci1yYWRpdXM6IDEwcHg7XG4gIGJveC1zaGFkb3c6IDAgNXB4IDE1cHggcmdiYSgwLCAwLCAwLCAwLjIpO1xuICBkaXNwbGF5OiBmbGV4O1xuICBmbGV4LWRpcmVjdGlvbjogY29sdW1uO1xuICB6LWluZGV4OiA5OTk7XG59XG4uY2hhdC13aW5kb3cubWluaW1pemVkIHtcbiAgaGVpZ2h0OiA0NXB4O1xuICBvdmVyZmxvdzogaGlkZGVuO1xufVxuLmNoYXQtd2luZG93LmhpZGRlbiB7XG4gIGRpc3BsYXk6IG5vbmU7XG59XG5cbi5jaGF0LWhlYWRlciB7XG4gIHBhZGRpbmc6IDEwcHggMTVweDtcbiAgYmFja2dyb3VuZDogIzRhOTBlMjtcbiAgY29sb3I6IHdoaXRlO1xuICBib3JkZXItcmFkaXVzOiAxMHB4IDEwcHggMCAwO1xuICBkaXNwbGF5OiBmbGV4O1xuICBqdXN0aWZ5LWNvbnRlbnQ6IHNwYWNlLWJldHdlZW47XG4gIGFsaWduLWl0ZW1zOiBjZW50ZXI7XG59XG4uY2hhdC1oZWFkZXIgLndpbmRvdy1jb250cm9scyBidXR0b24ge1xuICBiYWNrZ3JvdW5kOiBub25lO1xuICBib3JkZXI6IG5vbmU7XG4gIGNvbG9yOiB3aGl0ZTtcbiAgbWFyZ2luLWxlZnQ6IDEwcHg7XG4gIGN1cnNvcjogcG9pbnRlcjtcbn1cbi5jaGF0LWhlYWRlciAud2luZG93LWNvbnRyb2xzIGJ1dHRvbjpob3ZlciB7XG4gIG9wYWNpdHk6IDAuODtcbn1cblxuLmNoYXQtYm9keSB7XG4gIGZsZXg6IDE7XG4gIG92ZXJmbG93LXk6IGF1dG87XG4gIHBhZGRpbmc6IDE1cHg7XG59XG4uY2hhdC1ib2R5IC5tZXNzYWdlcyB7XG4gIGRpc3BsYXk6IGZsZXg7XG4gIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47XG4gIGdhcDogMTBweDtcbn1cbi5jaGF0LWJvZHkgLm1lc3NhZ2Uge1xuICBtYXgtd2lkdGg6IDgwJTtcbiAgcGFkZGluZzogMTBweDtcbiAgYm9yZGVyLXJhZGl1czogMTBweDtcbn1cbi5jaGF0LWJvZHkgLm1lc3NhZ2UudXNlci1tZXNzYWdlIHtcbiAgYWxpZ24tc2VsZjogZmxleC1lbmQ7XG4gIGJhY2tncm91bmQ6ICM0YTkwZTI7XG4gIGNvbG9yOiB3aGl0ZTtcbn1cbi5jaGF0LWJvZHkgLm1lc3NhZ2UuYWktbWVzc2FnZSB7XG4gIGFsaWduLXNlbGY6IGZsZXgtc3RhcnQ7XG4gIGJhY2tncm91bmQ6ICNmMWYxZjE7XG4gIGNvbG9yOiBibGFjaztcbn1cblxuLmNoYXQtaW5wdXQge1xuICBwYWRkaW5nOiAxNXB4O1xuICBib3JkZXItdG9wOiAxcHggc29saWQgI2VlZTtcbiAgZGlzcGxheTogZmxleDtcbiAgZ2FwOiAxMHB4O1xufVxuLmNoYXQtaW5wdXQgdGV4dGFyZWEge1xuICBmbGV4OiAxO1xuICBwYWRkaW5nOiA4cHg7XG4gIGJvcmRlcjogMXB4IHNvbGlkICNkZGQ7XG4gIGJvcmRlci1yYWRpdXM6IDVweDtcbiAgcmVzaXplOiBub25lO1xuICBoZWlnaHQ6IDQwcHg7XG59XG4uY2hhdC1pbnB1dCBidXR0b24ge1xuICBwYWRkaW5nOiA4cHggMTVweDtcbiAgYmFja2dyb3VuZDogIzRhOTBlMjtcbiAgY29sb3I6IHdoaXRlO1xuICBib3JkZXI6IG5vbmU7XG4gIGJvcmRlci1yYWRpdXM6IDVweDtcbiAgY3Vyc29yOiBwb2ludGVyO1xufVxuLmNoYXQtaW5wdXQgYnV0dG9uOmhvdmVyIHtcbiAgYmFja2dyb3VuZDogIzM1N2FiZDtcbn0iXX0= */"
+module.exports = ".chat-trigger {\n  position: fixed;\n  right: 20px;\n  bottom: 20px;\n  width: 60px;\n  height: 60px;\n  border-radius: 50%;\n  background: #4a90e2;\n  color: white;\n  border: none;\n  cursor: pointer;\n  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  z-index: 1000;\n  transition: transform 0.2s;\n}\n.chat-trigger i {\n  font-size: 24px;\n}\n.chat-trigger:hover {\n  transform: scale(1.1);\n}\n.chat-button {\n  position: fixed;\n  right: -25px;\n  bottom: 20%;\n  width: 50px;\n  height: 50px;\n  border-radius: 50% 0 0 50%;\n  background: rgba(74, 144, 226, 0.6);\n  color: white;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  cursor: pointer;\n  box-shadow: -2px 2px 10px rgba(0, 0, 0, 0.2);\n  z-index: 1000;\n  transition: all 0.3s ease;\n  opacity: 0.88;\n  padding-right: 25px;\n}\n.chat-button i {\n  font-size: 24px;\n  transition: transform 0.3s ease;\n  margin-left: -10px;\n}\n.chat-button:hover {\n  right: 0;\n  opacity: 0.8;\n  background: rgba(74, 144, 226, 0.8);\n}\n.chat-button.active {\n  right: 0;\n  opacity: 1;\n  background: rgb(74, 144, 226);\n  border-radius: 50%;\n}\n.chat-window {\n  position: fixed;\n  right: 20px;\n  bottom: 20px;\n  width: 400px;\n  height: 600px;\n  background: rgb(255, 255, 255);\n  border-radius: 8px;\n  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);\n  display: none;\n  flex-direction: column;\n  z-index: 1000;\n  opacity: 1;\n}\n.chat-window.visible {\n  display: flex;\n}\n.chat-window.minimized {\n  height: 40px;\n  overflow: hidden;\n}\n.chat-header {\n  padding: 10px 15px;\n  background: #4a90e2;\n  color: white;\n  border-radius: 8px 8px 0 0;\n  cursor: move;\n  -webkit-user-select: none;\n     -moz-user-select: none;\n          user-select: none;\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n}\n.chat-header .title {\n  font-weight: 500;\n}\n.chat-header .controls {\n  display: flex;\n  gap: 5px;\n}\n.chat-header .controls button {\n  background: none;\n  border: none;\n  color: white;\n  cursor: pointer;\n  width: 24px;\n  height: 24px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-size: 18px;\n  border-radius: 4px;\n}\n.chat-header .controls button:hover {\n  background-color: rgba(255, 255, 255, 0.1);\n}\n.chat-header .controls button.minimize-btn {\n  font-size: 20px;\n}\n.chat-header .controls button.close-btn {\n  font-size: 20px;\n}\n.chat-messages {\n  flex: 1;\n  overflow-y: auto;\n  padding: 15px;\n  display: flex;\n  flex-direction: column;\n  gap: 10px;\n  opacity: 1;\n}\n.message {\n  display: flex;\n  gap: 10px;\n  margin: 10px 0;\n  max-width: 100%;\n}\n.message .avatar-circle {\n  width: 32px;\n  height: 32px;\n  border-radius: 50%;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-size: 12px;\n  flex-shrink: 0;\n  color: white;\n}\n.message .message-content {\n  flex: 1;\n  max-width: calc(100% - 42px);\n}\n.message .message-content .message-text {\n  padding: 8px 12px;\n  border-radius: 12px;\n  word-wrap: break-word;\n}\n.message.user-message {\n  flex-direction: row-reverse;\n  justify-content: flex-start;\n}\n.message.user-message .avatar-circle {\n  background-color: #4a90e2;\n}\n.message.user-message .message-content {\n  display: flex;\n  flex-direction: column;\n  align-items: flex-end;\n}\n.message.user-message .message-content .message-text {\n  background-color: #4a90e2;\n  color: white;\n}\n.message:not(.user-message) .avatar-circle {\n  background-color: #7d7b7b;\n}\n.message:not(.user-message) .message-text {\n  background-color: #ffffff;\n  color: #333333;\n  font-size: 14px;\n  font-weight: normal;\n  line-height: 1.5;\n}\n.message.error-message .message-text {\n  background-color: #ffebee;\n  color: #c62828;\n}\n.chat-input {\n  padding: 15px;\n  border-top: 1px solid #eee;\n  display: flex;\n  gap: 10px;\n}\n.chat-input textarea {\n  flex: 1;\n  padding: 8px;\n  border: 1px solid #ddd;\n  border-radius: 4px;\n  resize: none;\n  height: 36px;\n  line-height: 20px;\n}\n.chat-input textarea:focus {\n  outline: none;\n  border-color: #4a90e2;\n}\n.chat-input button {\n  padding: 8px 16px;\n  background: #4a90e2;\n  color: white;\n  border: none;\n  border-radius: 4px;\n  cursor: pointer;\n}\n.chat-input button:hover {\n  background: #357abd;\n}\n.chat-input button:disabled {\n  background: #ccc;\n  cursor: not-allowed;\n}\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNyYy9hcHAvY29tcG9uZW50cy9jaGF0LXdpbmRvdy9EOlxcVXNlcnNcXEFkbWluaXN0cmF0b3JcXERlc2t0b3BcXGRldlxcdGVzdF9sdW1vc1xcTHVtb3NcXGFwcC9zcmNcXGFwcFxcY29tcG9uZW50c1xcY2hhdC13aW5kb3dcXGNoYXQtd2luZG93LmNvbXBvbmVudC5zY3NzIiwic3JjL2FwcC9jb21wb25lbnRzL2NoYXQtd2luZG93L2NoYXQtd2luZG93LmNvbXBvbmVudC5zY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUNBO0VBQ0UsZUFBQTtFQUNBLFdBQUE7RUFDQSxZQUFBO0VBQ0EsV0FBQTtFQUNBLFlBQUE7RUFDQSxrQkFBQTtFQUNBLG1CQUFBO0VBQ0EsWUFBQTtFQUNBLFlBQUE7RUFDQSxlQUFBO0VBQ0EseUNBQUE7RUFDQSxhQUFBO0VBQ0EsbUJBQUE7RUFDQSx1QkFBQTtFQUNBLGFBQUE7RUFDQSwwQkFBQTtBQ0FGO0FERUU7RUFDRSxlQUFBO0FDQUo7QURHRTtFQUNFLHFCQUFBO0FDREo7QUR1REE7RUFDRSxlQUFBO0VBQ0EsWUFBQTtFQUNBLFdBQUE7RUFDQSxXQUFBO0VBQ0EsWUFBQTtFQUNBLDBCQUFBO0VBQ0EsbUNBQUE7RUFDQSxZQUFBO0VBQ0EsYUFBQTtFQUNBLG1CQUFBO0VBQ0EsdUJBQUE7RUFDQSxlQUFBO0VBQ0EsNENBQUE7RUFDQSxhQUFBO0VBQ0EseUJBQUE7RUFDQSxhQUFBO0VBQ0EsbUJBQUE7QUNwREY7QURzREU7RUFDRSxlQUFBO0VBQ0EsK0JBQUE7RUFDQSxrQkFBQTtBQ3BESjtBRHdERTtFQUNFLFFBQUE7RUFDQSxZQUFBO0VBQ0EsbUNBQUE7QUN0REo7QUQwREU7RUFDRSxRQUFBO0VBQ0EsVUFBQTtFQUNBLDZCQUFBO0VBQ0Esa0JBQUE7QUN4REo7QUQ0REU7RUFDRSxlQUFBO0VBQ0EsV0FBQTtFQUNBLFlBQUE7RUFDQSxZQUFBO0VBQ0EsYUFBQTtFQUNBLDhCQUFBO0VBQ0Esa0JBQUE7RUFDQSx5Q0FBQTtFQUNBLGFBQUE7RUFDQSxzQkFBQTtFQUNBLGFBQUE7RUFDQSxVQUFBO0FDekRKO0FEMkRJO0VBQ0UsYUFBQTtBQ3pETjtBRDRESTtFQUNFLFlBQUE7RUFDQSxnQkFBQTtBQzFETjtBRDhERTtFQUNFLGtCQUFBO0VBQ0EsbUJBQUE7RUFDQSxZQUFBO0VBQ0EsMEJBQUE7RUFDQSxZQUFBO0VBQ0EseUJBQUE7S0FBQSxzQkFBQTtVQUFBLGlCQUFBO0VBQ0EsYUFBQTtFQUNBLDhCQUFBO0VBQ0EsbUJBQUE7QUMzREo7QUQ2REk7RUFDRSxnQkFBQTtBQzNETjtBRDhESTtFQUNFLGFBQUE7RUFDQSxRQUFBO0FDNUROO0FEOERNO0VBQ0UsZ0JBQUE7RUFDQSxZQUFBO0VBQ0EsWUFBQTtFQUNBLGVBQUE7RUFDQSxXQUFBO0VBQ0EsWUFBQTtFQUNBLGFBQUE7RUFDQSxtQkFBQTtFQUNBLHVCQUFBO0VBQ0EsZUFBQTtFQUNBLGtCQUFBO0FDNURSO0FEOERRO0VBQ0UsMENBQUE7QUM1RFY7QUQrRFE7RUFDRSxlQUFBO0FDN0RWO0FEZ0VRO0VBQ0UsZUFBQTtBQzlEVjtBRG9FRTtFQUNFLE9BQUE7RUFDQSxnQkFBQTtFQUNBLGFBQUE7RUFDQSxhQUFBO0VBQ0Esc0JBQUE7RUFDQSxTQUFBO0VBQ0EsVUFBQTtBQ2pFSjtBRG9FRTtFQUNFLGFBQUE7RUFDQSxTQUFBO0VBQ0EsY0FBQTtFQUNBLGVBQUE7QUNqRUo7QURtRUk7RUFDRSxXQUFBO0VBQ0EsWUFBQTtFQUNBLGtCQUFBO0VBQ0EsYUFBQTtFQUNBLG1CQUFBO0VBQ0EsdUJBQUE7RUFDQSxlQUFBO0VBQ0EsY0FBQTtFQUNBLFlBQUE7QUNqRU47QURvRUk7RUFDRSxPQUFBO0VBQ0EsNEJBQUE7QUNsRU47QURvRU07RUFDRSxpQkFBQTtFQUNBLG1CQUFBO0VBQ0EscUJBQUE7QUNsRVI7QURzRUk7RUFDRSwyQkFBQTtFQUNBLDJCQUFBO0FDcEVOO0FEc0VNO0VBQ0UseUJBQUE7QUNwRVI7QUR1RU07RUFDRSxhQUFBO0VBQ0Esc0JBQUE7RUFDQSxxQkFBQTtBQ3JFUjtBRHVFUTtFQUNFLHlCQUFBO0VBQ0EsWUFBQTtBQ3JFVjtBRDJFTTtFQUNFLHlCQUFBO0FDekVSO0FENEVNO0VBQ0UseUJBQUE7RUFDQSxjQUFBO0VBQ0EsZUFBQTtFQUNBLG1CQUFBO0VBQ0EsZ0JBQUE7QUMxRVI7QUQrRU07RUFDRSx5QkFBQTtFQUNBLGNBQUE7QUM3RVI7QURrRkU7RUFDRSxhQUFBO0VBQ0EsMEJBQUE7RUFDQSxhQUFBO0VBQ0EsU0FBQTtBQy9FSjtBRGlGSTtFQUNFLE9BQUE7RUFDQSxZQUFBO0VBQ0Esc0JBQUE7RUFDQSxrQkFBQTtFQUNBLFlBQUE7RUFDQSxZQUFBO0VBQ0EsaUJBQUE7QUMvRU47QURpRk07RUFDRSxhQUFBO0VBQ0EscUJBQUE7QUMvRVI7QURtRkk7RUFDRSxpQkFBQTtFQUNBLG1CQUFBO0VBQ0EsWUFBQTtFQUNBLFlBQUE7RUFDQSxrQkFBQTtFQUNBLGVBQUE7QUNqRk47QURtRk07RUFDRSxtQkFBQTtBQ2pGUjtBRG9GTTtFQUNFLGdCQUFBO0VBQ0EsbUJBQUE7QUNsRlIiLCJmaWxlIjoic3JjL2FwcC9jb21wb25lbnRzL2NoYXQtd2luZG93L2NoYXQtd2luZG93LmNvbXBvbmVudC5zY3NzIiwic291cmNlc0NvbnRlbnQiOlsiLy8g6Kem5Y+R5oyJ6ZKu5qC35byPXHJcbi5jaGF0LXRyaWdnZXIge1xyXG4gIHBvc2l0aW9uOiBmaXhlZDtcclxuICByaWdodDogMjBweDtcclxuICBib3R0b206IDIwcHg7XHJcbiAgd2lkdGg6IDYwcHg7XHJcbiAgaGVpZ2h0OiA2MHB4O1xyXG4gIGJvcmRlci1yYWRpdXM6IDUwJTtcclxuICBiYWNrZ3JvdW5kOiAjNGE5MGUyO1xyXG4gIGNvbG9yOiB3aGl0ZTtcclxuICBib3JkZXI6IG5vbmU7XHJcbiAgY3Vyc29yOiBwb2ludGVyO1xyXG4gIGJveC1zaGFkb3c6IDAgMnB4IDEwcHggcmdiYSgwLCAwLCAwLCAwLjIpO1xyXG4gIGRpc3BsYXk6IGZsZXg7XHJcbiAgYWxpZ24taXRlbXM6IGNlbnRlcjtcclxuICBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjtcclxuICB6LWluZGV4OiAxMDAwO1xyXG4gIHRyYW5zaXRpb246IHRyYW5zZm9ybSAwLjJzO1xyXG5cclxuICBpIHtcclxuICAgIGZvbnQtc2l6ZTogMjRweDtcclxuICB9XHJcblxyXG4gICY6aG92ZXIge1xyXG4gICAgdHJhbnNmb3JtOiBzY2FsZSgxLjEpO1xyXG4gIH1cclxufVxyXG5cclxuXHJcbi8vIC5jaGF0LXRyaWdnZXIge1xyXG4vLyAgIC8vIHBvc2l0aW9uOiBmaXhlZDtcclxuLy8gICAvLyByaWdodDogMjBweDtcclxuLy8gICAvLyBib3R0b206IDIwcHg7XHJcbi8vICAgLy8gcGFkZGluZzogMTBweCAyMHB4O1xyXG4vLyAgIHBvc2l0aW9uOiBmaXhlZDtcclxuLy8gICByaWdodDogLTI1cHg7IC8vIOWIneWni+S9jee9ruWcqOWxj+W5leWkllxyXG4vLyAgIGJvdHRvbTogMjAlO1xyXG4vLyAgIHdpZHRoOiA1MHB4O1xyXG4vLyAgIGhlaWdodDogNTBweDtcclxuLy8gICBib3JkZXItcmFkaXVzOiA1MCUgMCAwIDUwJTsgLy8g5L+u5pS55Li65Y2K5ZyG5b2iXHJcbi8vICAgYmFja2dyb3VuZDogIzRhOTBlMjtcclxuLy8gICBjb2xvcjogd2hpdGU7XHJcbi8vICAgZGlzcGxheTogZmxleDtcclxuLy8gICBhbGlnbi1pdGVtczogY2VudGVyO1xyXG4vLyAgIGp1c3RpZnktY29udGVudDogY2VudGVyO1xyXG4vLyAgIGN1cnNvcjogcG9pbnRlcjtcclxuLy8gICBib3gtc2hhZG93OiAtMnB4IDJweCAxMHB4IHJnYmEoMCwwLDAsMC4yKTtcclxuLy8gICB6LWluZGV4OiAxMDAwO1xyXG4vLyAgIHRyYW5zaXRpb246IGFsbCAwLjNzIGVhc2U7XHJcbi8vICAgb3BhY2l0eTogMC44ODtcclxuLy8gICBwYWRkaW5nLXJpZ2h0OiAyNXB4OyAvLyDkuLrlm77moIfnlZnlh7rnqbrpl7RcclxuXHJcbi8vICAgJjpob3ZlciB7XHJcbi8vICAgICBiYWNrZ3JvdW5kOiAjMzU3YWJkO1xyXG4vLyAgIH1cclxuLy8gICBpIHtcclxuLy8gICAgIGZvbnQtc2l6ZTogMjRweDtcclxuLy8gICAgIHRyYW5zaXRpb246IHRyYW5zZm9ybSAwLjNzIGVhc2U7XHJcbi8vICAgICBtYXJnaW4tbGVmdDogLTEwcHg7IC8vIOiwg+aVtOWbvuagh+S9jee9rlxyXG4vLyAgIH1cclxuICBcclxuLy8gICAvLyDpvKDmoIfmgqzlgZzml7bmu5Hlh7pcclxuLy8gICAmOmhvdmVyIHtcclxuLy8gICAgIHJpZ2h0OiAwO1xyXG4vLyAgICAgb3BhY2l0eTogMTtcclxuLy8gICAgIGJhY2tncm91bmQ6IHJnYmEoNzQsIDE0NCwgMjI2LCAwLjgpO1xyXG4vLyAgIH1cclxuICBcclxuLy8gICAvLyDmv4DmtLvnirbmgIHvvIjogYrlpKnnqpflj6PmiZPlvIDml7bvvIlcclxuLy8gICAmLmFjdGl2ZSB7XHJcbi8vICAgICByaWdodDogMDtcclxuLy8gICAgIG9wYWNpdHk6IDE7XHJcbi8vICAgICBiYWNrZ3JvdW5kOiByZ2JhKDc0LCAxNDQsIDIyNiwgMSk7XHJcbi8vICAgICBib3JkZXItcmFkaXVzOiA1MCU7IC8vIOaBouWkjeS4uuWchuW9olxyXG4vLyAgIH1cclxuLy8gfVxyXG5cclxuXHJcbi5jaGF0LWJ1dHRvbiB7XHJcbiAgcG9zaXRpb246IGZpeGVkO1xyXG4gIHJpZ2h0OiAtMjVweDsgLy8g5Yid5aeL5L2N572u5Zyo5bGP5bmV5aSWXHJcbiAgYm90dG9tOiAyMCU7XHJcbiAgd2lkdGg6IDUwcHg7XHJcbiAgaGVpZ2h0OiA1MHB4O1xyXG4gIGJvcmRlci1yYWRpdXM6IDUwJSAwIDAgNTAlOyAvLyDkv67mlLnkuLrljYrlnIblvaJcclxuICBiYWNrZ3JvdW5kOiByZ2JhKDc0LCAxNDQsIDIyNiwgMC42KTtcclxuICBjb2xvcjogd2hpdGU7XHJcbiAgZGlzcGxheTogZmxleDtcclxuICBhbGlnbi1pdGVtczogY2VudGVyO1xyXG4gIGp1c3RpZnktY29udGVudDogY2VudGVyO1xyXG4gIGN1cnNvcjogcG9pbnRlcjtcclxuICBib3gtc2hhZG93OiAtMnB4IDJweCAxMHB4IHJnYmEoMCwwLDAsMC4yKTtcclxuICB6LWluZGV4OiAxMDAwO1xyXG4gIHRyYW5zaXRpb246IGFsbCAwLjNzIGVhc2U7XHJcbiAgb3BhY2l0eTogMC44ODtcclxuICBwYWRkaW5nLXJpZ2h0OiAyNXB4OyAvLyDkuLrlm77moIfnlZnlh7rnqbrpl7RcclxuICBcclxuICBpIHtcclxuICAgIGZvbnQtc2l6ZTogMjRweDtcclxuICAgIHRyYW5zaXRpb246IHRyYW5zZm9ybSAwLjNzIGVhc2U7XHJcbiAgICBtYXJnaW4tbGVmdDogLTEwcHg7IC8vIOiwg+aVtOWbvuagh+S9jee9rlxyXG4gIH1cclxuICBcclxuICAvLyDpvKDmoIfmgqzlgZzml7bmu5Hlh7pcclxuICAmOmhvdmVyIHtcclxuICAgIHJpZ2h0OiAwO1xyXG4gICAgb3BhY2l0eTogMC44O1xyXG4gICAgYmFja2dyb3VuZDogcmdiYSg3NCwgMTQ0LCAyMjYsIDAuOCk7XHJcbiAgfVxyXG4gIFxyXG4gIC8vIOa/gOa0u+eKtuaAge+8iOiBiuWkqeeql+WPo+aJk+W8gOaXtu+8iVxyXG4gICYuYWN0aXZlIHtcclxuICAgIHJpZ2h0OiAwO1xyXG4gICAgb3BhY2l0eTogMTtcclxuICAgIGJhY2tncm91bmQ6IHJnYmEoNzQsIDE0NCwgMjI2LCAxKTtcclxuICAgIGJvcmRlci1yYWRpdXM6IDUwJTsgLy8g5oGi5aSN5Li65ZyG5b2iXHJcbiAgfVxyXG4gIH1cclxuICBcclxuICAuY2hhdC13aW5kb3cge1xyXG4gICAgcG9zaXRpb246IGZpeGVkO1xyXG4gICAgcmlnaHQ6IDIwcHg7XHJcbiAgICBib3R0b206IDIwcHg7XHJcbiAgICB3aWR0aDogNDAwcHg7XHJcbiAgICBoZWlnaHQ6IDYwMHB4O1xyXG4gICAgYmFja2dyb3VuZDogcmdiKDI1NSwgMjU1LCAyNTUpO1xyXG4gICAgYm9yZGVyLXJhZGl1czogOHB4O1xyXG4gICAgYm94LXNoYWRvdzogMCAycHggMTBweCByZ2JhKDAsIDAsIDAsIDAuMSk7XHJcbiAgICBkaXNwbGF5OiBub25lO1xyXG4gICAgZmxleC1kaXJlY3Rpb246IGNvbHVtbjtcclxuICAgIHotaW5kZXg6IDEwMDA7XHJcbiAgICBvcGFjaXR5OiAxO1xyXG4gICAgXHJcbiAgICAmLnZpc2libGUge1xyXG4gICAgICBkaXNwbGF5OiBmbGV4O1xyXG4gICAgfVxyXG4gICAgXHJcbiAgICAmLm1pbmltaXplZCB7XHJcbiAgICAgIGhlaWdodDogNDBweDtcclxuICAgICAgb3ZlcmZsb3c6IGhpZGRlbjtcclxuICAgIH1cclxuICB9XHJcbiAgXHJcbiAgLmNoYXQtaGVhZGVyIHtcclxuICAgIHBhZGRpbmc6IDEwcHggMTVweDtcclxuICAgIGJhY2tncm91bmQ6ICM0YTkwZTI7XHJcbiAgICBjb2xvcjogd2hpdGU7XHJcbiAgICBib3JkZXItcmFkaXVzOiA4cHggOHB4IDAgMDtcclxuICAgIGN1cnNvcjogbW92ZTtcclxuICAgIHVzZXItc2VsZWN0OiBub25lO1xyXG4gICAgZGlzcGxheTogZmxleDtcclxuICAgIGp1c3RpZnktY29udGVudDogc3BhY2UtYmV0d2VlbjtcclxuICAgIGFsaWduLWl0ZW1zOiBjZW50ZXI7XHJcbiAgXHJcbiAgICAudGl0bGUge1xyXG4gICAgICBmb250LXdlaWdodDogNTAwO1xyXG4gICAgfVxyXG4gIFxyXG4gICAgLmNvbnRyb2xzIHtcclxuICAgICAgZGlzcGxheTogZmxleDtcclxuICAgICAgZ2FwOiA1cHg7XHJcbiAgXHJcbiAgICAgIGJ1dHRvbiB7XHJcbiAgICAgICAgYmFja2dyb3VuZDogbm9uZTtcclxuICAgICAgICBib3JkZXI6IG5vbmU7XHJcbiAgICAgICAgY29sb3I6IHdoaXRlO1xyXG4gICAgICAgIGN1cnNvcjogcG9pbnRlcjtcclxuICAgICAgICB3aWR0aDogMjRweDtcclxuICAgICAgICBoZWlnaHQ6IDI0cHg7XHJcbiAgICAgICAgZGlzcGxheTogZmxleDtcclxuICAgICAgICBhbGlnbi1pdGVtczogY2VudGVyO1xyXG4gICAgICAgIGp1c3RpZnktY29udGVudDogY2VudGVyO1xyXG4gICAgICAgIGZvbnQtc2l6ZTogMThweDtcclxuICAgICAgICBib3JkZXItcmFkaXVzOiA0cHg7XHJcbiAgXHJcbiAgICAgICAgJjpob3ZlciB7XHJcbiAgICAgICAgICBiYWNrZ3JvdW5kLWNvbG9yOiByZ2JhKDI1NSwgMjU1LCAyNTUsIDAuMSk7XHJcbiAgICAgICAgfVxyXG4gIFxyXG4gICAgICAgICYubWluaW1pemUtYnRuIHtcclxuICAgICAgICAgIGZvbnQtc2l6ZTogMjBweDtcclxuICAgICAgICB9XHJcbiAgXHJcbiAgICAgICAgJi5jbG9zZS1idG4ge1xyXG4gICAgICAgICAgZm9udC1zaXplOiAyMHB4O1xyXG4gICAgICAgIH1cclxuICAgICAgfVxyXG4gICAgfVxyXG4gIH1cclxuICBcclxuICAuY2hhdC1tZXNzYWdlcyB7XHJcbiAgICBmbGV4OiAxO1xyXG4gICAgb3ZlcmZsb3cteTogYXV0bztcclxuICAgIHBhZGRpbmc6IDE1cHg7XHJcbiAgICBkaXNwbGF5OiBmbGV4O1xyXG4gICAgZmxleC1kaXJlY3Rpb246IGNvbHVtbjtcclxuICAgIGdhcDogMTBweDtcclxuICAgIG9wYWNpdHk6IDE7XHJcbiAgfVxyXG4gIFxyXG4gIC5tZXNzYWdlIHtcclxuICAgIGRpc3BsYXk6IGZsZXg7XHJcbiAgICBnYXA6IDEwcHg7XHJcbiAgICBtYXJnaW46IDEwcHggMDtcclxuICAgIG1heC13aWR0aDogMTAwJTtcclxuICBcclxuICAgIC5hdmF0YXItY2lyY2xlIHtcclxuICAgICAgd2lkdGg6IDMycHg7XHJcbiAgICAgIGhlaWdodDogMzJweDtcclxuICAgICAgYm9yZGVyLXJhZGl1czogNTAlO1xyXG4gICAgICBkaXNwbGF5OiBmbGV4O1xyXG4gICAgICBhbGlnbi1pdGVtczogY2VudGVyO1xyXG4gICAgICBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjtcclxuICAgICAgZm9udC1zaXplOiAxMnB4O1xyXG4gICAgICBmbGV4LXNocmluazogMDtcclxuICAgICAgY29sb3I6IHdoaXRlO1xyXG4gICAgfVxyXG4gIFxyXG4gICAgLm1lc3NhZ2UtY29udGVudCB7XHJcbiAgICAgIGZsZXg6IDE7XHJcbiAgICAgIG1heC13aWR0aDogY2FsYygxMDAlIC0gNDJweCk7XHJcbiAgXHJcbiAgICAgIC5tZXNzYWdlLXRleHQge1xyXG4gICAgICAgIHBhZGRpbmc6IDhweCAxMnB4O1xyXG4gICAgICAgIGJvcmRlci1yYWRpdXM6IDEycHg7XHJcbiAgICAgICAgd29yZC13cmFwOiBicmVhay13b3JkO1xyXG4gICAgICB9XHJcbiAgICB9XHJcbiAgXHJcbiAgICAmLnVzZXItbWVzc2FnZSB7XHJcbiAgICAgIGZsZXgtZGlyZWN0aW9uOiByb3ctcmV2ZXJzZTtcclxuICAgICAganVzdGlmeS1jb250ZW50OiBmbGV4LXN0YXJ0O1xyXG4gICAgICBcclxuICAgICAgLmF2YXRhci1jaXJjbGUge1xyXG4gICAgICAgIGJhY2tncm91bmQtY29sb3I6ICM0YTkwZTI7XHJcbiAgICAgIH1cclxuICAgICAgXHJcbiAgICAgIC5tZXNzYWdlLWNvbnRlbnQge1xyXG4gICAgICAgIGRpc3BsYXk6IGZsZXg7XHJcbiAgICAgICAgZmxleC1kaXJlY3Rpb246IGNvbHVtbjtcclxuICAgICAgICBhbGlnbi1pdGVtczogZmxleC1lbmQ7ICAvLyDlj7Plr7npvZBcclxuICAgICAgICBcclxuICAgICAgICAubWVzc2FnZS10ZXh0IHtcclxuICAgICAgICAgIGJhY2tncm91bmQtY29sb3I6ICM0YTkwZTI7XHJcbiAgICAgICAgICBjb2xvcjogd2hpdGU7XHJcbiAgICAgICAgfVxyXG4gICAgICB9XHJcbiAgICB9XHJcbiAgXHJcbiAgICAmOm5vdCgudXNlci1tZXNzYWdlKSB7XHJcbiAgICAgIC5hdmF0YXItY2lyY2xlIHtcclxuICAgICAgICBiYWNrZ3JvdW5kLWNvbG9yOiAjN2Q3YjdiO1xyXG4gICAgICB9XHJcbiAgICAgIFxyXG4gICAgICAubWVzc2FnZS10ZXh0IHtcclxuICAgICAgICBiYWNrZ3JvdW5kLWNvbG9yOiAjZmZmZmZmO1xyXG4gICAgICAgIGNvbG9yOiAjMzMzMzMzOyAgLy8g5re75YqgQUnmtojmga/nmoTmloflrZfpopzoibJcclxuICAgICAgICBmb250LXNpemU6IDE0cHg7ICAvLyDorr7nva7lrZfkvZPlpKflsI9cclxuICAgICAgICBmb250LXdlaWdodDogbm9ybWFsOyAgLy8g6K6+572u5a2X5L2T57KX57uGXHJcbiAgICAgICAgbGluZS1oZWlnaHQ6IDEuNTsgIC8vIOiuvue9ruihjOmrmFxyXG4gICAgICB9XHJcbiAgICB9XHJcbiAgXHJcbiAgICAmLmVycm9yLW1lc3NhZ2Uge1xyXG4gICAgICAubWVzc2FnZS10ZXh0IHtcclxuICAgICAgICBiYWNrZ3JvdW5kLWNvbG9yOiAjZmZlYmVlO1xyXG4gICAgICAgIGNvbG9yOiAjYzYyODI4O1xyXG4gICAgICB9XHJcbiAgICB9XHJcbiAgfVxyXG4gIFxyXG4gIC5jaGF0LWlucHV0IHtcclxuICAgIHBhZGRpbmc6IDE1cHg7XHJcbiAgICBib3JkZXItdG9wOiAxcHggc29saWQgI2VlZTtcclxuICAgIGRpc3BsYXk6IGZsZXg7XHJcbiAgICBnYXA6IDEwcHg7XHJcbiAgXHJcbiAgICB0ZXh0YXJlYSB7XHJcbiAgICAgIGZsZXg6IDE7XHJcbiAgICAgIHBhZGRpbmc6IDhweDtcclxuICAgICAgYm9yZGVyOiAxcHggc29saWQgI2RkZDtcclxuICAgICAgYm9yZGVyLXJhZGl1czogNHB4O1xyXG4gICAgICByZXNpemU6IG5vbmU7XHJcbiAgICAgIGhlaWdodDogMzZweDtcclxuICAgICAgbGluZS1oZWlnaHQ6IDIwcHg7XHJcbiAgXHJcbiAgICAgICY6Zm9jdXMge1xyXG4gICAgICAgIG91dGxpbmU6IG5vbmU7XHJcbiAgICAgICAgYm9yZGVyLWNvbG9yOiAjNGE5MGUyO1xyXG4gICAgICB9XHJcbiAgICB9XHJcbiAgXHJcbiAgICBidXR0b24ge1xyXG4gICAgICBwYWRkaW5nOiA4cHggMTZweDtcclxuICAgICAgYmFja2dyb3VuZDogIzRhOTBlMjtcclxuICAgICAgY29sb3I6IHdoaXRlO1xyXG4gICAgICBib3JkZXI6IG5vbmU7XHJcbiAgICAgIGJvcmRlci1yYWRpdXM6IDRweDtcclxuICAgICAgY3Vyc29yOiBwb2ludGVyO1xyXG4gIFxyXG4gICAgICAmOmhvdmVyIHtcclxuICAgICAgICBiYWNrZ3JvdW5kOiAjMzU3YWJkO1xyXG4gICAgICB9XHJcbiAgXHJcbiAgICAgICY6ZGlzYWJsZWQge1xyXG4gICAgICAgIGJhY2tncm91bmQ6ICNjY2M7XHJcbiAgICAgICAgY3Vyc29yOiBub3QtYWxsb3dlZDtcclxuICAgICAgfVxyXG4gICAgfVxyXG4gIH0iLCIuY2hhdC10cmlnZ2VyIHtcbiAgcG9zaXRpb246IGZpeGVkO1xuICByaWdodDogMjBweDtcbiAgYm90dG9tOiAyMHB4O1xuICB3aWR0aDogNjBweDtcbiAgaGVpZ2h0OiA2MHB4O1xuICBib3JkZXItcmFkaXVzOiA1MCU7XG4gIGJhY2tncm91bmQ6ICM0YTkwZTI7XG4gIGNvbG9yOiB3aGl0ZTtcbiAgYm9yZGVyOiBub25lO1xuICBjdXJzb3I6IHBvaW50ZXI7XG4gIGJveC1zaGFkb3c6IDAgMnB4IDEwcHggcmdiYSgwLCAwLCAwLCAwLjIpO1xuICBkaXNwbGF5OiBmbGV4O1xuICBhbGlnbi1pdGVtczogY2VudGVyO1xuICBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjtcbiAgei1pbmRleDogMTAwMDtcbiAgdHJhbnNpdGlvbjogdHJhbnNmb3JtIDAuMnM7XG59XG4uY2hhdC10cmlnZ2VyIGkge1xuICBmb250LXNpemU6IDI0cHg7XG59XG4uY2hhdC10cmlnZ2VyOmhvdmVyIHtcbiAgdHJhbnNmb3JtOiBzY2FsZSgxLjEpO1xufVxuXG4uY2hhdC1idXR0b24ge1xuICBwb3NpdGlvbjogZml4ZWQ7XG4gIHJpZ2h0OiAtMjVweDtcbiAgYm90dG9tOiAyMCU7XG4gIHdpZHRoOiA1MHB4O1xuICBoZWlnaHQ6IDUwcHg7XG4gIGJvcmRlci1yYWRpdXM6IDUwJSAwIDAgNTAlO1xuICBiYWNrZ3JvdW5kOiByZ2JhKDc0LCAxNDQsIDIyNiwgMC42KTtcbiAgY29sb3I6IHdoaXRlO1xuICBkaXNwbGF5OiBmbGV4O1xuICBhbGlnbi1pdGVtczogY2VudGVyO1xuICBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjtcbiAgY3Vyc29yOiBwb2ludGVyO1xuICBib3gtc2hhZG93OiAtMnB4IDJweCAxMHB4IHJnYmEoMCwgMCwgMCwgMC4yKTtcbiAgei1pbmRleDogMTAwMDtcbiAgdHJhbnNpdGlvbjogYWxsIDAuM3MgZWFzZTtcbiAgb3BhY2l0eTogMC44ODtcbiAgcGFkZGluZy1yaWdodDogMjVweDtcbn1cbi5jaGF0LWJ1dHRvbiBpIHtcbiAgZm9udC1zaXplOiAyNHB4O1xuICB0cmFuc2l0aW9uOiB0cmFuc2Zvcm0gMC4zcyBlYXNlO1xuICBtYXJnaW4tbGVmdDogLTEwcHg7XG59XG4uY2hhdC1idXR0b246aG92ZXIge1xuICByaWdodDogMDtcbiAgb3BhY2l0eTogMC44O1xuICBiYWNrZ3JvdW5kOiByZ2JhKDc0LCAxNDQsIDIyNiwgMC44KTtcbn1cbi5jaGF0LWJ1dHRvbi5hY3RpdmUge1xuICByaWdodDogMDtcbiAgb3BhY2l0eTogMTtcbiAgYmFja2dyb3VuZDogcmdiKDc0LCAxNDQsIDIyNik7XG4gIGJvcmRlci1yYWRpdXM6IDUwJTtcbn1cblxuLmNoYXQtd2luZG93IHtcbiAgcG9zaXRpb246IGZpeGVkO1xuICByaWdodDogMjBweDtcbiAgYm90dG9tOiAyMHB4O1xuICB3aWR0aDogNDAwcHg7XG4gIGhlaWdodDogNjAwcHg7XG4gIGJhY2tncm91bmQ6IHJnYigyNTUsIDI1NSwgMjU1KTtcbiAgYm9yZGVyLXJhZGl1czogOHB4O1xuICBib3gtc2hhZG93OiAwIDJweCAxMHB4IHJnYmEoMCwgMCwgMCwgMC4xKTtcbiAgZGlzcGxheTogbm9uZTtcbiAgZmxleC1kaXJlY3Rpb246IGNvbHVtbjtcbiAgei1pbmRleDogMTAwMDtcbiAgb3BhY2l0eTogMTtcbn1cbi5jaGF0LXdpbmRvdy52aXNpYmxlIHtcbiAgZGlzcGxheTogZmxleDtcbn1cbi5jaGF0LXdpbmRvdy5taW5pbWl6ZWQge1xuICBoZWlnaHQ6IDQwcHg7XG4gIG92ZXJmbG93OiBoaWRkZW47XG59XG5cbi5jaGF0LWhlYWRlciB7XG4gIHBhZGRpbmc6IDEwcHggMTVweDtcbiAgYmFja2dyb3VuZDogIzRhOTBlMjtcbiAgY29sb3I6IHdoaXRlO1xuICBib3JkZXItcmFkaXVzOiA4cHggOHB4IDAgMDtcbiAgY3Vyc29yOiBtb3ZlO1xuICB1c2VyLXNlbGVjdDogbm9uZTtcbiAgZGlzcGxheTogZmxleDtcbiAganVzdGlmeS1jb250ZW50OiBzcGFjZS1iZXR3ZWVuO1xuICBhbGlnbi1pdGVtczogY2VudGVyO1xufVxuLmNoYXQtaGVhZGVyIC50aXRsZSB7XG4gIGZvbnQtd2VpZ2h0OiA1MDA7XG59XG4uY2hhdC1oZWFkZXIgLmNvbnRyb2xzIHtcbiAgZGlzcGxheTogZmxleDtcbiAgZ2FwOiA1cHg7XG59XG4uY2hhdC1oZWFkZXIgLmNvbnRyb2xzIGJ1dHRvbiB7XG4gIGJhY2tncm91bmQ6IG5vbmU7XG4gIGJvcmRlcjogbm9uZTtcbiAgY29sb3I6IHdoaXRlO1xuICBjdXJzb3I6IHBvaW50ZXI7XG4gIHdpZHRoOiAyNHB4O1xuICBoZWlnaHQ6IDI0cHg7XG4gIGRpc3BsYXk6IGZsZXg7XG4gIGFsaWduLWl0ZW1zOiBjZW50ZXI7XG4gIGp1c3RpZnktY29udGVudDogY2VudGVyO1xuICBmb250LXNpemU6IDE4cHg7XG4gIGJvcmRlci1yYWRpdXM6IDRweDtcbn1cbi5jaGF0LWhlYWRlciAuY29udHJvbHMgYnV0dG9uOmhvdmVyIHtcbiAgYmFja2dyb3VuZC1jb2xvcjogcmdiYSgyNTUsIDI1NSwgMjU1LCAwLjEpO1xufVxuLmNoYXQtaGVhZGVyIC5jb250cm9scyBidXR0b24ubWluaW1pemUtYnRuIHtcbiAgZm9udC1zaXplOiAyMHB4O1xufVxuLmNoYXQtaGVhZGVyIC5jb250cm9scyBidXR0b24uY2xvc2UtYnRuIHtcbiAgZm9udC1zaXplOiAyMHB4O1xufVxuXG4uY2hhdC1tZXNzYWdlcyB7XG4gIGZsZXg6IDE7XG4gIG92ZXJmbG93LXk6IGF1dG87XG4gIHBhZGRpbmc6IDE1cHg7XG4gIGRpc3BsYXk6IGZsZXg7XG4gIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47XG4gIGdhcDogMTBweDtcbiAgb3BhY2l0eTogMTtcbn1cblxuLm1lc3NhZ2Uge1xuICBkaXNwbGF5OiBmbGV4O1xuICBnYXA6IDEwcHg7XG4gIG1hcmdpbjogMTBweCAwO1xuICBtYXgtd2lkdGg6IDEwMCU7XG59XG4ubWVzc2FnZSAuYXZhdGFyLWNpcmNsZSB7XG4gIHdpZHRoOiAzMnB4O1xuICBoZWlnaHQ6IDMycHg7XG4gIGJvcmRlci1yYWRpdXM6IDUwJTtcbiAgZGlzcGxheTogZmxleDtcbiAgYWxpZ24taXRlbXM6IGNlbnRlcjtcbiAganVzdGlmeS1jb250ZW50OiBjZW50ZXI7XG4gIGZvbnQtc2l6ZTogMTJweDtcbiAgZmxleC1zaHJpbms6IDA7XG4gIGNvbG9yOiB3aGl0ZTtcbn1cbi5tZXNzYWdlIC5tZXNzYWdlLWNvbnRlbnQge1xuICBmbGV4OiAxO1xuICBtYXgtd2lkdGg6IGNhbGMoMTAwJSAtIDQycHgpO1xufVxuLm1lc3NhZ2UgLm1lc3NhZ2UtY29udGVudCAubWVzc2FnZS10ZXh0IHtcbiAgcGFkZGluZzogOHB4IDEycHg7XG4gIGJvcmRlci1yYWRpdXM6IDEycHg7XG4gIHdvcmQtd3JhcDogYnJlYWstd29yZDtcbn1cbi5tZXNzYWdlLnVzZXItbWVzc2FnZSB7XG4gIGZsZXgtZGlyZWN0aW9uOiByb3ctcmV2ZXJzZTtcbiAganVzdGlmeS1jb250ZW50OiBmbGV4LXN0YXJ0O1xufVxuLm1lc3NhZ2UudXNlci1tZXNzYWdlIC5hdmF0YXItY2lyY2xlIHtcbiAgYmFja2dyb3VuZC1jb2xvcjogIzRhOTBlMjtcbn1cbi5tZXNzYWdlLnVzZXItbWVzc2FnZSAubWVzc2FnZS1jb250ZW50IHtcbiAgZGlzcGxheTogZmxleDtcbiAgZmxleC1kaXJlY3Rpb246IGNvbHVtbjtcbiAgYWxpZ24taXRlbXM6IGZsZXgtZW5kO1xufVxuLm1lc3NhZ2UudXNlci1tZXNzYWdlIC5tZXNzYWdlLWNvbnRlbnQgLm1lc3NhZ2UtdGV4dCB7XG4gIGJhY2tncm91bmQtY29sb3I6ICM0YTkwZTI7XG4gIGNvbG9yOiB3aGl0ZTtcbn1cbi5tZXNzYWdlOm5vdCgudXNlci1tZXNzYWdlKSAuYXZhdGFyLWNpcmNsZSB7XG4gIGJhY2tncm91bmQtY29sb3I6ICM3ZDdiN2I7XG59XG4ubWVzc2FnZTpub3QoLnVzZXItbWVzc2FnZSkgLm1lc3NhZ2UtdGV4dCB7XG4gIGJhY2tncm91bmQtY29sb3I6ICNmZmZmZmY7XG4gIGNvbG9yOiAjMzMzMzMzO1xuICBmb250LXNpemU6IDE0cHg7XG4gIGZvbnQtd2VpZ2h0OiBub3JtYWw7XG4gIGxpbmUtaGVpZ2h0OiAxLjU7XG59XG4ubWVzc2FnZS5lcnJvci1tZXNzYWdlIC5tZXNzYWdlLXRleHQge1xuICBiYWNrZ3JvdW5kLWNvbG9yOiAjZmZlYmVlO1xuICBjb2xvcjogI2M2MjgyODtcbn1cblxuLmNoYXQtaW5wdXQge1xuICBwYWRkaW5nOiAxNXB4O1xuICBib3JkZXItdG9wOiAxcHggc29saWQgI2VlZTtcbiAgZGlzcGxheTogZmxleDtcbiAgZ2FwOiAxMHB4O1xufVxuLmNoYXQtaW5wdXQgdGV4dGFyZWEge1xuICBmbGV4OiAxO1xuICBwYWRkaW5nOiA4cHg7XG4gIGJvcmRlcjogMXB4IHNvbGlkICNkZGQ7XG4gIGJvcmRlci1yYWRpdXM6IDRweDtcbiAgcmVzaXplOiBub25lO1xuICBoZWlnaHQ6IDM2cHg7XG4gIGxpbmUtaGVpZ2h0OiAyMHB4O1xufVxuLmNoYXQtaW5wdXQgdGV4dGFyZWE6Zm9jdXMge1xuICBvdXRsaW5lOiBub25lO1xuICBib3JkZXItY29sb3I6ICM0YTkwZTI7XG59XG4uY2hhdC1pbnB1dCBidXR0b24ge1xuICBwYWRkaW5nOiA4cHggMTZweDtcbiAgYmFja2dyb3VuZDogIzRhOTBlMjtcbiAgY29sb3I6IHdoaXRlO1xuICBib3JkZXI6IG5vbmU7XG4gIGJvcmRlci1yYWRpdXM6IDRweDtcbiAgY3Vyc29yOiBwb2ludGVyO1xufVxuLmNoYXQtaW5wdXQgYnV0dG9uOmhvdmVyIHtcbiAgYmFja2dyb3VuZDogIzM1N2FiZDtcbn1cbi5jaGF0LWlucHV0IGJ1dHRvbjpkaXNhYmxlZCB7XG4gIGJhY2tncm91bmQ6ICNjY2M7XG4gIGN1cnNvcjogbm90LWFsbG93ZWQ7XG59Il19 */"
 
 /***/ }),
 
@@ -258,28 +271,154 @@ __webpack_require__.r(__webpack_exports__);
 
 
 var ChatWindowComponent = /** @class */ (function () {
-    function ChatWindowComponent(aiChatService) {
+    // position = { x: 100, y: 100 };  // 初始位置
+    // private isDragging = false;
+    // private dragOffset = { x: 0, y: 0 };
+    // @ViewChild('chatWindow') chatWindow: ElementRef;
+    // @ViewChild('dragHandle') dragHandle: ElementRef;
+    function ChatWindowComponent(aiChatService, ngZone, // 添加 NgZone
+    changeDetectorRef // 添加这个
+    ) {
+        var _this = this;
         this.aiChatService = aiChatService;
+        this.ngZone = ngZone;
+        this.changeDetectorRef = changeDetectorRef;
+        this.position = {
+            x: (window.innerWidth - 300) / 2,
+            y: (window.innerHeight - 700) / 2 // 400是窗口高度
+        }; // 设置初始位置
+        this.isDragging = false;
+        this.dragOffset = { x: 0, y: 0 };
+        this.hasBeenDragged = false; // 新增：标记是否被拖动过
         this.isSending = false;
         this.isVisible = false;
         this.isMinimized = false;
         this.messages = [];
         this.userInput = '';
+        // 添加全局鼠标事件监听
+        this.ngZone.runOutsideAngular(function () {
+            window.addEventListener('mousemove', _this.onMouseMove.bind(_this));
+            window.addEventListener('mouseup', _this.stopDragging.bind(_this));
+        });
     }
-    ChatWindowComponent.prototype.ngAfterViewChecked = function () {
-        this.scrollToBottom();
-    };
-    ChatWindowComponent.prototype.ngOnDestroy = function () {
-        this.aiChatService.disconnect();
-    };
     ChatWindowComponent.prototype.toggleChat = function () {
         if (this.isMinimized) {
             this.isMinimized = false;
         }
         else {
             this.isVisible = !this.isVisible;
+            if (!this.hasBeenDragged && this.isVisible) {
+                // 重置到屏幕中间
+                this.position = {
+                    x: (window.innerWidth - 300) / 2,
+                    y: (window.innerHeight - 700) / 2
+                };
+            }
         }
     };
+    ChatWindowComponent.prototype.ngOnInit = function () {
+        var _this = this;
+        // 连接到服务器
+        this.aiChatService.connectToSocket();
+        // 监听连接状态
+        this.connectionSubscription = this.aiChatService.getConnectionStatus()
+            .subscribe(function (isConnected) {
+            console.log('聊天服务器连接状态:', isConnected);
+            if (!isConnected) {
+                _this.messages.push({
+                    content: '与服务器的连接已断开，请稍后重试。',
+                    isUser: false,
+                    isError: true
+                });
+            }
+        });
+    };
+    // toggleChat() {
+    //   if (this.isMinimized) {
+    //     this.isMinimized = false;
+    //   } else {
+    //     this.isVisible = !this.isVisible;
+    //     if (!this.hasBeenDragged && this.isVisible) {
+    //       // 重置位置到默认位置
+    //       this.position = { x: 0, y: 0 };
+    //     }
+    //   }
+    // }
+    ChatWindowComponent.prototype.startDragging = function (event) {
+        if (event.target === this.dragHandle.nativeElement) {
+            this.isDragging = true;
+            var rect = this.chatWindow.nativeElement.getBoundingClientRect();
+            if (!this.hasBeenDragged) {
+                // 第一次拖动时，设置初始位置
+                this.position = {
+                    x: rect.left,
+                    y: rect.top
+                };
+                this.hasBeenDragged = true;
+            }
+            this.dragOffset = {
+                x: event.clientX - rect.left,
+                y: event.clientY - rect.top
+            };
+            event.preventDefault();
+        }
+    };
+    ChatWindowComponent.prototype.onMouseMove = function (event) {
+        var _this = this;
+        if (this.isDragging) {
+            this.ngZone.run(function () {
+                _this.position = {
+                    x: event.clientX - _this.dragOffset.x,
+                    y: event.clientY - _this.dragOffset.y
+                };
+            });
+        }
+    };
+    ChatWindowComponent.prototype.stopDragging = function () {
+        this.isDragging = false;
+    };
+    ChatWindowComponent.prototype.ngOnDestroy = function () {
+        // 清理订阅
+        if (this.connectionSubscription) {
+            this.connectionSubscription.unsubscribe();
+        }
+        // 断开连接
+        this.aiChatService.disconnectFromSocket();
+    };
+    // startDragging(event: MouseEvent) {
+    //   if (event.target === this.dragHandle.nativeElement) {
+    //     this.isDragging = true;
+    //     const rect = this.chatWindow.nativeElement.getBoundingClientRect();
+    //     this.dragOffset = {
+    //       x: event.clientX - rect.left,
+    //       y: event.clientY - rect.top
+    //     };
+    //     event.preventDefault();
+    //   }
+    // }
+    // private onMouseMove(event: MouseEvent) {
+    //   if (this.isDragging) {
+    //     this.ngZone.run(() => {
+    //       this.position = {
+    //         x: event.clientX - this.dragOffset.x,
+    //         y: event.clientY - this.dragOffset.y
+    //       };
+    //     });
+    //   }
+    // }
+    // private stopDragging() {
+    //   this.isDragging = false;
+    // }
+    // ngAfterViewChecked() {
+    //   this.scrollToBottom();
+    // }
+    // toggleChat() {
+    //   if (this.isMinimized) {
+    //     this.isMinimized = false;
+    //   } else {
+    //     this.isVisible = !this.isVisible;
+    //   }
+    // }
     ChatWindowComponent.prototype.minimizeChat = function () {
         this.isMinimized = true;
     };
@@ -288,44 +427,52 @@ var ChatWindowComponent = /** @class */ (function () {
     };
     ChatWindowComponent.prototype.sendMessage = function () {
         return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function () {
-            var userMessage, response, error_1;
+            var userMessage, response_1, error_1;
+            var _this = this;
             return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__generator"])(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        if (!this.userInput.trim())
+                        if (!this.userInput.trim() || this.isSending)
                             return [2 /*return*/];
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, 4, 5]);
                         this.isSending = true;
+                        userMessage = this.userInput;
                         // 添加用户消息
                         this.messages.push({
-                            content: this.userInput,
+                            content: userMessage,
                             isUser: true
                         });
-                        userMessage = this.userInput;
                         this.userInput = '';
                         return [4 /*yield*/, this.aiChatService.sendMessage(userMessage)];
                     case 2:
-                        response = _a.sent();
+                        response_1 = _a.sent();
                         // 添加AI响应
-                        this.messages.push({
-                            content: response,
-                            isUser: false
+                        this.ngZone.run(function () {
+                            _this.messages.push({
+                                content: response_1,
+                                isUser: false
+                            });
+                            _this.changeDetectorRef.detectChanges(); // 强制检测变更
                         });
                         return [3 /*break*/, 5];
                     case 3:
                         error_1 = _a.sent();
                         console.error('发送消息失败:', error_1);
-                        // 显示错误消息
-                        this.messages.push({
-                            content: error_1.message || '抱歉，发生了错误，请稍后重试。',
-                            isUser: false,
-                            isError: true
+                        // 添加错误消息
+                        this.ngZone.run(function () {
+                            _this.messages.push({
+                                content: typeof error_1 === 'string' ? error_1 : error_1.message || '发送消息失败',
+                                isUser: false,
+                                isError: true,
+                            });
+                            _this.changeDetectorRef.detectChanges(); // 强制检测变更
                         });
                         return [3 /*break*/, 5];
                     case 4:
                         this.isSending = false;
+                        this.ngZone.run(function () { });
                         return [7 /*endfinally*/];
                     case 5: return [2 /*return*/];
                 }
@@ -339,6 +486,17 @@ var ChatWindowComponent = /** @class */ (function () {
         }
         catch (err) { }
     };
+    ChatWindowComponent.prototype.ngAfterViewChecked = function () {
+        this.scrollToBottom();
+    };
+    Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"])([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["ViewChild"])('chatWindow'),
+        Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__metadata"])("design:type", _angular_core__WEBPACK_IMPORTED_MODULE_1__["ElementRef"])
+    ], ChatWindowComponent.prototype, "chatWindow", void 0);
+    Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"])([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["ViewChild"])('dragHandle'),
+        Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__metadata"])("design:type", _angular_core__WEBPACK_IMPORTED_MODULE_1__["ElementRef"])
+    ], ChatWindowComponent.prototype, "dragHandle", void 0);
     Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"])([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["ViewChild"])('scrollContainer'),
         Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__metadata"])("design:type", _angular_core__WEBPACK_IMPORTED_MODULE_1__["ElementRef"])
@@ -349,7 +507,10 @@ var ChatWindowComponent = /** @class */ (function () {
             template: __webpack_require__(/*! ./chat-window.component.html */ "./src/app/components/chat-window/chat-window.component.html"),
             styles: [__webpack_require__(/*! ./chat-window.component.scss */ "./src/app/components/chat-window/chat-window.component.scss")]
         }),
-        Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__metadata"])("design:paramtypes", [_services_chat_service__WEBPACK_IMPORTED_MODULE_2__["AiChatService"]])
+        Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__metadata"])("design:paramtypes", [_services_chat_service__WEBPACK_IMPORTED_MODULE_2__["AiChatService"],
+            _angular_core__WEBPACK_IMPORTED_MODULE_1__["NgZone"],
+            _angular_core__WEBPACK_IMPORTED_MODULE_1__["ChangeDetectorRef"] // 添加这个
+        ])
     ], ChatWindowComponent);
     return ChatWindowComponent;
 }());
@@ -2932,82 +3093,132 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AiChatService", function() { return AiChatService; });
 /* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
-/* harmony import */ var socket_io_client__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! socket.io-client */ "./node_modules/socket.io-client/lib/index.js");
-/* harmony import */ var socket_io_client__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(socket_io_client__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! rxjs */ "./node_modules/rxjs/_esm5/index.js");
+/* harmony import */ var ngx_socket_io__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ngx-socket-io */ "./node_modules/ngx-socket-io/fesm2015/ngx-socket-io.js");
+
 
 
 
 var AiChatService = /** @class */ (function () {
-    function AiChatService() {
-        this.socket = null;
-        this.isInitialized = false;
+    function AiChatService(socket) {
+        this.socket = socket;
+        this.isConnected = false;
         this.initSocket();
     }
     AiChatService.prototype.initSocket = function () {
         var _this = this;
-        try {
-            this.socket = Object(socket_io_client__WEBPACK_IMPORTED_MODULE_2__["io"])('http://localhost:3000', {
-                withCredentials: true,
-                transports: ['websocket', 'polling'],
-                autoConnect: true
-            });
-            this.socket.on('connect', function () {
-                console.log('Connected to server');
-                _this.isInitialized = true;
-            });
-            this.socket.on('connect_error', function (error) {
-                console.error('Connection error:', error);
-                _this.isInitialized = false;
-            });
+        this.socket.on('connect', function () {
+            console.log('Connected to server');
+            _this.isConnected = true;
+        });
+        this.socket.on('disconnect', function () {
+            console.log('Disconnected from server');
+            _this.isConnected = false;
+        });
+        this.socket.on('connect_error', function (error) {
+            console.error('Connection error:', error);
+            _this.isConnected = false;
+        });
+    };
+    AiChatService.prototype.connectToSocket = function () {
+        if (!this.isConnected) {
+            console.log('Attempting to connect...');
+            this.socket.connect();
         }
-        catch (error) {
-            console.error('Socket initialization error:', error);
-            this.isInitialized = false;
+    };
+    AiChatService.prototype.disconnectFromSocket = function () {
+        if (this.socket) {
+            this.socket.removeAllListeners();
+            this.socket.disconnect();
         }
     };
     AiChatService.prototype.sendMessage = function (message) {
         return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function () {
             var _this = this;
             return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__generator"])(this, function (_a) {
+                if (!this.isConnected) {
+                    throw new Error('未连接到服务器');
+                }
                 return [2 /*return*/, new Promise(function (resolve, reject) {
-                        if (!_this.socket || !_this.isInitialized) {
-                            _this.initSocket();
-                            reject(new Error('Socket 未初始化，请稍后重试'));
-                            return;
-                        }
-                        if (!_this.socket.connected) {
-                            reject(new Error('未连接到服务器，请稍后重试'));
-                            return;
-                        }
-                        _this.socket.emit('chat_message', { message: message });
-                        // 监听响应
-                        _this.socket.once('chat_response', function (data) {
-                            resolve(data.response);
+                        console.log('Sending message:', message);
+                        // 发送消息
+                        _this.socket.emit('send_chat_message', { message: message });
+                        console.log('Message sent, waiting for response...');
+                        // 清理之前的订阅
+                        _this.cleanupSubscriptions();
+                        // 设置响应监听器
+                        _this.responseSubscription = _this.socket
+                            .fromEvent('receive_chat_response')
+                            .subscribe({
+                            next: function (response) {
+                                console.log('Received response:', response);
+                                _this.cleanupSubscriptions();
+                                clearTimeout(timeoutId);
+                                resolve(response.response);
+                            },
+                            error: function (error) {
+                                console.error('Response error:', error);
+                                _this.cleanupSubscriptions();
+                                clearTimeout(timeoutId);
+                                reject(error);
+                            }
                         });
-                        // 监听错误
-                        _this.socket.once('chat_error', function (error) {
-                            reject(error);
+                        // 设置错误监听器
+                        _this.errorSubscription = _this.socket
+                            .fromEvent('chat_error')
+                            .subscribe({
+                            next: function (error) {
+                                console.error('Received error:', error);
+                                _this.cleanupSubscriptions();
+                                clearTimeout(timeoutId);
+                                reject(error);
+                            },
+                            error: function (error) {
+                                console.error('Error subscription error:', error);
+                                _this.cleanupSubscriptions();
+                                clearTimeout(timeoutId);
+                                reject(error);
+                            }
                         });
-                        // 设置超时
-                        setTimeout(function () {
+                        // 设置超时（减少超时时间以便测试）
+                        var timeoutId = setTimeout(function () {
+                            console.error('Request timed out');
+                            _this.cleanupSubscriptions();
                             reject(new Error('请求超时'));
-                        }, 10000);
+                        }, 10000); // 改为 10 秒以便测试
                     })];
             });
         });
     };
-    AiChatService.prototype.disconnect = function () {
-        if (this.socket) {
-            this.socket.disconnect();
-            this.socket = null;
-            this.isInitialized = false;
+    AiChatService.prototype.cleanupSubscriptions = function () {
+        if (this.responseSubscription) {
+            this.responseSubscription.unsubscribe();
+            this.responseSubscription = null;
         }
+        if (this.errorSubscription) {
+            this.errorSubscription.unsubscribe();
+            this.errorSubscription = null;
+        }
+    };
+    // 获取连接状态的观察者
+    AiChatService.prototype.getConnectionStatus = function () {
+        var _this = this;
+        return new rxjs__WEBPACK_IMPORTED_MODULE_2__["Observable"](function (observer) {
+            var connectHandler = function () { return observer.next(true); };
+            var disconnectHandler = function () { return observer.next(false); };
+            _this.socket.on('connect', connectHandler);
+            _this.socket.on('disconnect', disconnectHandler);
+            return function () {
+                _this.socket.removeListener('connect', connectHandler);
+                _this.socket.removeListener('disconnect', disconnectHandler);
+            };
+        });
     };
     AiChatService = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"])([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Injectable"])({
             providedIn: 'root'
         }),
-        Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__metadata"])("design:paramtypes", [])
+        Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__metadata"])("design:paramtypes", [ngx_socket_io__WEBPACK_IMPORTED_MODULE_3__["Socket"]])
     ], AiChatService);
     return AiChatService;
 }());

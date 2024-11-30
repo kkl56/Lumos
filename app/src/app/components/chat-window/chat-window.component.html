@@ -1,5 +1,6 @@
 <!-- 触发按钮 -->
 <button class="chat-trigger" (click)="toggleChat()" *ngIf="!isVisible">
+
   <i class="fas fa-robot"></i>
 </button>
 
@@ -10,15 +11,17 @@
      [style.left.px]="position.x"
      [style.top.px]="position.y"
      #chatWindow>
+
+  <!-- 聊天窗口头部 -->
   <div class="chat-header" 
      (mousedown)="startDragging($event)"
      #dragHandle>
   <span class="title">AI Assistant</span>
   <div class="controls">
-    <button class="minimize-btn" (click)="minimizeChat()">−</button>
-    <button class="close-btn" (click)="closeChat()">×</button>
+      <button class="minimize-btn" (click)="minimizeChat()">−</button>
+      <button class="close-btn" (click)="closeChat()">×</button>
+    </div>
   </div>
-</div>
 
   <!-- 聊天内容区域 -->
   <!-- <div class="chat-messages" #scrollContainer>
@@ -30,10 +33,9 @@
     </div>
   </div> -->
   <div class="chat-messages" #scrollContainer>
-    <div *ngFor="let message of messages" 
+    <div *ngFor="let message of messages" class="message"
          [class.user-message]="message.isUser"
-         [class.error-message]="message.isError"
-         class="message">
+         [class.error-message]="message.isError">
       <div class="avatar-circle">
         {{ message.isUser ? 'Me' : 'AI' }}
       </div>

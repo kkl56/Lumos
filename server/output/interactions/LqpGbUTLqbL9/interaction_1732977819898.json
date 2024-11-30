@@ -1,0 +1,22 @@
+{
+  "timestamp": 1732977819898,
+  "interaction_type": "click_remove_item",
+  "element_data": {
+    "id": "p201",
+    "x": {
+      "name": "Annual Income",
+      "value": 100000
+    },
+    "y": {
+      "name": "Employment Length",
+      "value": 3
+    },
+    "eventX": 914,
+    "eventY": 523
+  },
+  "app_info": {
+    "mode": "credit_risk.csv",
+    "type": "ADMIN",
+    "level": "live"
+  }
+}

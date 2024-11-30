@@ -1,0 +1,16 @@
+{
+  "timestamp": 1732996396189,
+  "interaction_type": "chart_type_changed",
+  "element_data": {
+    "chartChanged": "scatterplot",
+    "x": "Annual Income",
+    "y": "Home Ownership Type",
+    "eventX": null,
+    "eventY": null
+  },
+  "app_info": {
+    "mode": "credit_risk.csv",
+    "type": "ADMIN",
+    "level": "live"
+  }
+}

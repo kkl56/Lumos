@@ -101,7 +101,7 @@ export class AiChatService {
         console.error('Request timed out');
         this.cleanupSubscriptions();
         reject(new Error('请求超时'));
-      }, 10000); // 改为 10 秒以便测试
+      }, 60000); // 改为 60 秒以便测试
     });
   }
 

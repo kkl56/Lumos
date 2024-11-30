@@ -249,11 +249,15 @@
   
     &:not(.user-message) {
       .avatar-circle {
-        background-color: #666;
+        background-color: #7d7b7b;
       }
       
       .message-text {
-        background-color: #f1f1f1;
+        background-color: #ffffff;
+        color: #333333;  // 添加AI消息的文字颜色
+        font-size: 14px;  // 设置字体大小
+        font-weight: normal;  // 设置字体粗细
+        line-height: 1.5;  // 设置行高
       }
     }
   

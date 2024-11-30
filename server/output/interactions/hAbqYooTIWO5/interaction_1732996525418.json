@@ -1,0 +1,22 @@
+{
+  "timestamp": 1732996525418,
+  "interaction_type": "click_remove_item",
+  "element_data": {
+    "id": "p92",
+    "x": {
+      "name": "Annual Income",
+      "value": 97000
+    },
+    "y": {
+      "name": "Home Ownership Type",
+      "value": "Own"
+    },
+    "eventX": 910,
+    "eventY": 222
+  },
+  "app_info": {
+    "mode": "credit_risk.csv",
+    "type": "ADMIN",
+    "level": "live"
+  }
+}

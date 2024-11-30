@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, AfterViewChecked, OnInit, OnDestroy, NgZone } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewChecked, OnInit, OnDestroy, NgZone, ChangeDetectorRef } from '@angular/core';
 import { AiChatService } from '../../services/chat.service';
 import { Subscription } from 'rxjs';
 
@@ -45,7 +45,8 @@ export class ChatWindowComponent implements AfterViewChecked, OnInit, OnDestroy 
 
   constructor(
     private aiChatService: AiChatService,
-    private ngZone: NgZone  // 添加 NgZone
+    private ngZone: NgZone,  // 添加 NgZone
+    private changeDetectorRef: ChangeDetectorRef  // 添加这个
   ) {
     // 添加全局鼠标事件监听
     this.ngZone.runOutsideAngular(() => {
@@ -198,41 +199,48 @@ export class ChatWindowComponent implements AfterViewChecked, OnInit, OnDestroy 
   }
 
   async sendMessage() {
-    if (!this.userInput.trim()) return;
+    if (!this.userInput.trim()|| this.isSending) return;
   
     try {
       this.isSending = true;
-      
+      const userMessage = this.userInput;      
       // 添加用户消息
       this.messages.push({
-        content: this.userInput,
+        content: userMessage,
         isUser: true
       });
   
-      const userMessage = this.userInput;
+
       this.userInput = '';
   
       // 调用服务发送消息
       const response = await this.aiChatService.sendMessage(userMessage);
       
       // 添加AI响应
-      this.messages.push({
-        content: response,
-        isUser: false
+      this.ngZone.run(() => {
+        this.messages.push({
+          content: response,
+          isUser: false
+        });
+        this.changeDetectorRef.detectChanges(); // 强制检测变更
       });
       
     } catch (error) {
       console.error('发送消息失败:', error);
       
-      // 显示错误消息
-      this.messages.push({
-        content: error.message || '抱歉，发生了错误，请稍后重试。',
-        isUser: false,
-        isError: true
+      // 添加错误消息
+      this.ngZone.run(() => {
+        this.messages.push({
+          content: typeof error === 'string' ? error : error.message || '发送消息失败',
+          isUser: false,
+          isError: true,
+        });
+        this.changeDetectorRef.detectChanges(); // 强制检测变更
       });
       
     } finally {
       this.isSending = false;
+      this.ngZone.run(() => {});
     }
   }
 

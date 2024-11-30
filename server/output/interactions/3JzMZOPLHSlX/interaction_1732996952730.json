@@ -1,0 +1,22 @@
+{
+  "timestamp": 1732996952730,
+  "interaction_type": "mouseout_item",
+  "element_data": {
+    "id": "p86",
+    "x": {
+      "name": "Age",
+      "value": 39
+    },
+    "y": {
+      "name": "Loan Amount",
+      "value": 15175
+    },
+    "eventX": 1053,
+    "eventY": 288
+  },
+  "app_info": {
+    "mode": "credit_risk.csv",
+    "type": "ADMIN",
+    "level": "live"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "timestamp": 1732996388152,
+  "interaction_type": "chart_type_changed",
+  "element_data": {
+    "chartChanged": "stripplot",
+    "x": null,
+    "y": null,
+    "eventX": null,
+    "eventY": null
+  },
+  "app_info": {
+    "mode": "credit_risk.csv",
+    "type": "ADMIN",
+    "level": "live"
+  }
+}

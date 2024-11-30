@@ -1,0 +1,22 @@
+{
+  "timestamp": 1732977815099,
+  "interaction_type": "click_add_item",
+  "element_data": {
+    "id": "p153",
+    "x": {
+      "name": "Annual Income",
+      "value": 80000
+    },
+    "y": {
+      "name": "Employment Length",
+      "value": 6
+    },
+    "eventX": 881,
+    "eventY": 516
+  },
+  "app_info": {
+    "mode": "credit_risk.csv",
+    "type": "ADMIN",
+    "level": "live"
+  }
+}

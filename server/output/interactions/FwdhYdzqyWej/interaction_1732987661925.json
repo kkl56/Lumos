@@ -1,0 +1,22 @@
+{
+  "timestamp": 1732987661925,
+  "interaction_type": "mouseover_item",
+  "element_data": {
+    "id": "p189",
+    "x": {
+      "name": "Employment Length",
+      "value": 4
+    },
+    "y": {
+      "name": "Loan Amount",
+      "value": 16800
+    },
+    "eventX": 770,
+    "eventY": 332
+  },
+  "app_info": {
+    "mode": "credit_risk.csv",
+    "type": "ADMIN",
+    "level": "live"
+  }
+}

@@ -38,7 +38,8 @@ const config: SocketIoConfig = {
     reconnection: true,
     reconnectionDelay: 1000,
     reconnectionDelayMax: 5000,
-    reconnectionAttempts: 5
+    reconnectionAttempts: 5,
+    timeout: 60000
   }
 };
 

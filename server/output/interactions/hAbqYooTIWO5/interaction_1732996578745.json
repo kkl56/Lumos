@@ -1,0 +1,22 @@
+{
+  "timestamp": 1732996578745,
+  "interaction_type": "click_remove_item",
+  "element_data": {
+    "id": "p248",
+    "x": {
+      "name": "Annual Income",
+      "value": 67500
+    },
+    "y": {
+      "name": "Home Ownership Type",
+      "value": "Mortgage"
+    },
+    "eventX": 851,
+    "eventY": 366
+  },
+  "app_info": {
+    "mode": "credit_risk.csv",
+    "type": "ADMIN",
+    "level": "live"
+  }
+}
