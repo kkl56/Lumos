@@ -67,7 +67,7 @@ var AppRoutingModule = /** @class */ (function () {
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<router-outlet></router-outlet>\r\n"
+module.exports = "<router-outlet></router-outlet>\r\n<app-chat-window></app-chat-window>"
 
 /***/ }),
 
@@ -145,6 +145,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _services_socket_service__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./services/socket.service */ "./src/app/services/socket.service.ts");
 /* harmony import */ var _services_utils_service__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./services/utils.service */ "./src/app/services/utils.service.ts");
 /* harmony import */ var _main_activity_component__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./main-activity/component */ "./src/app/main-activity/component.ts");
+/* harmony import */ var _components_chat_window_chat_window_component__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./components/chat-window/chat-window.component */ "./src/app/components/chat-window/chat-window.component.ts");
+/* harmony import */ var _services_chat_service__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./services/chat.service */ "./src/app/services/chat.service.ts");
 
 // library
 
@@ -168,6 +170,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
+
 var config = {
     url: _models_config__WEBPACK_IMPORTED_MODULE_15__["DeploymentConfig"].SERVER_URL,
     options: { timeout: 60000, autoConnect: false },
@@ -179,7 +183,8 @@ var AppModule = /** @class */ (function () {
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_4__["NgModule"])({
             declarations: [
                 _app_component__WEBPACK_IMPORTED_MODULE_13__["AppComponent"],
-                _main_activity_component__WEBPACK_IMPORTED_MODULE_20__["MainActivityComponent"]
+                _main_activity_component__WEBPACK_IMPORTED_MODULE_20__["MainActivityComponent"],
+                _components_chat_window_chat_window_component__WEBPACK_IMPORTED_MODULE_21__["ChatWindowComponent"],
             ],
             imports: [
                 ng_multiselect_dropdown__WEBPACK_IMPORTED_MODULE_6__["NgMultiSelectDropDownModule"].forRoot(),
@@ -202,11 +207,151 @@ var AppModule = /** @class */ (function () {
                 _services_message_service__WEBPACK_IMPORTED_MODULE_17__["MessageService"],
                 _services_socket_service__WEBPACK_IMPORTED_MODULE_18__["ChatService"],
                 _services_utils_service__WEBPACK_IMPORTED_MODULE_19__["UtilsService"],
+                _services_chat_service__WEBPACK_IMPORTED_MODULE_22__["AiChatService"],
             ],
             bootstrap: [_app_component__WEBPACK_IMPORTED_MODULE_13__["AppComponent"]],
         })
     ], AppModule);
     return AppModule;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/app/components/chat-window/chat-window.component.html":
+/*!*******************************************************************!*\
+  !*** ./src/app/components/chat-window/chat-window.component.html ***!
+  \*******************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "<div class=\"chat-button\" (click)=\"toggleChat()\">\r\n    <i class=\"fas fa-robot\"></i>\r\n  </div>\r\n  \r\n  <div class=\"chat-window\" [class.minimized]=\"isMinimized\" [class.hidden]=\"!isVisible\">\r\n    <div class=\"chat-header\">\r\n      <span>AI Assistant</span>\r\n      <div class=\"window-controls\">\r\n        <button (click)=\"minimizeChat()\" class=\"minimize-btn\">\r\n          <i class=\"fas fa-minus\"></i>\r\n        </button>\r\n        <button (click)=\"closeChat()\" class=\"close-btn\">\r\n          <i class=\"fas fa-times\"></i>\r\n        </button>\r\n      </div>\r\n    </div>\r\n    \r\n    <div class=\"chat-body\">\r\n      <div class=\"messages\" #scrollContainer>\r\n        <div *ngFor=\"let message of messages\" \r\n             [class.user-message]=\"message.isUser\"\r\n             [class.ai-message]=\"!message.isUser\"\r\n             class=\"message\">\r\n          {{ message.content }}\r\n        </div>\r\n      </div>\r\n    </div>\r\n  \r\n    <div class=\"chat-input\">\r\n      <textarea \r\n        [(ngModel)]=\"userInput\"\r\n        (keyup.enter)=\"sendMessage()\"\r\n        placeholder=\"输入消息...\"\r\n      ></textarea>\r\n      <button (click)=\"sendMessage()\">发送</button>\r\n    </div>\r\n  </div>"
+
+/***/ }),
+
+/***/ "./src/app/components/chat-window/chat-window.component.scss":
+/*!*******************************************************************!*\
+  !*** ./src/app/components/chat-window/chat-window.component.scss ***!
+  \*******************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = ".chat-button {\n  position: fixed;\n  right: -25px;\n  bottom: 20%;\n  width: 50px;\n  height: 50px;\n  border-radius: 50% 0 0 50%;\n  background: rgba(74, 144, 226, 0.6);\n  color: white;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  cursor: pointer;\n  box-shadow: -2px 2px 10px rgba(0, 0, 0, 0.2);\n  z-index: 1000;\n  transition: all 0.3s ease;\n  opacity: 0.88;\n  padding-right: 25px;\n}\n.chat-button i {\n  font-size: 24px;\n  transition: transform 0.3s ease;\n  margin-left: -10px;\n}\n.chat-button:hover {\n  right: 0;\n  opacity: 0.8;\n  background: rgba(74, 144, 226, 0.8);\n}\n.chat-button.active {\n  right: 0;\n  opacity: 1;\n  background: rgb(74, 144, 226);\n  border-radius: 50%;\n}\n.chat-window {\n  position: fixed;\n  right: 70px;\n  bottom: 20%;\n  width: 350px;\n  height: 500px;\n  background: white;\n  border-radius: 10px;\n  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);\n  display: flex;\n  flex-direction: column;\n  z-index: 999;\n}\n.chat-window.minimized {\n  height: 45px;\n  overflow: hidden;\n}\n.chat-window.hidden {\n  display: none;\n}\n.chat-header {\n  padding: 10px 15px;\n  background: #4a90e2;\n  color: white;\n  border-radius: 10px 10px 0 0;\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n}\n.chat-header .window-controls button {\n  background: none;\n  border: none;\n  color: white;\n  margin-left: 10px;\n  cursor: pointer;\n}\n.chat-header .window-controls button:hover {\n  opacity: 0.8;\n}\n.chat-body {\n  flex: 1;\n  overflow-y: auto;\n  padding: 15px;\n}\n.chat-body .messages {\n  display: flex;\n  flex-direction: column;\n  gap: 10px;\n}\n.chat-body .message {\n  max-width: 80%;\n  padding: 10px;\n  border-radius: 10px;\n}\n.chat-body .message.user-message {\n  align-self: flex-end;\n  background: #4a90e2;\n  color: white;\n}\n.chat-body .message.ai-message {\n  align-self: flex-start;\n  background: #f1f1f1;\n  color: black;\n}\n.chat-input {\n  padding: 15px;\n  border-top: 1px solid #eee;\n  display: flex;\n  gap: 10px;\n}\n.chat-input textarea {\n  flex: 1;\n  padding: 8px;\n  border: 1px solid #ddd;\n  border-radius: 5px;\n  resize: none;\n  height: 40px;\n}\n.chat-input button {\n  padding: 8px 15px;\n  background: #4a90e2;\n  color: white;\n  border: none;\n  border-radius: 5px;\n  cursor: pointer;\n}\n.chat-input button:hover {\n  background: #357abd;\n}\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNyYy9hcHAvY29tcG9uZW50cy9jaGF0LXdpbmRvdy9EOlxcVXNlcnNcXEFkbWluaXN0cmF0b3JcXERlc2t0b3BcXGRldlxcdGVzdF9sdW1vc1xcTHVtb3NcXGFwcC9zcmNcXGFwcFxcY29tcG9uZW50c1xcY2hhdC13aW5kb3dcXGNoYXQtd2luZG93LmNvbXBvbmVudC5zY3NzIiwic3JjL2FwcC9jb21wb25lbnRzL2NoYXQtd2luZG93L2NoYXQtd2luZG93LmNvbXBvbmVudC5zY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBO0VBQ0UsZUFBQTtFQUNBLFlBQUE7RUFDQSxXQUFBO0VBQ0EsV0FBQTtFQUNBLFlBQUE7RUFDQSwwQkFBQTtFQUNBLG1DQUFBO0VBQ0EsWUFBQTtFQUNBLGFBQUE7RUFDQSxtQkFBQTtFQUNBLHVCQUFBO0VBQ0EsZUFBQTtFQUNBLDRDQUFBO0VBQ0EsYUFBQTtFQUNBLHlCQUFBO0VBQ0EsYUFBQTtFQUNBLG1CQUFBO0FDQ0Y7QURDRTtFQUNFLGVBQUE7RUFDQSwrQkFBQTtFQUNBLGtCQUFBO0FDQ0o7QURHRTtFQUNFLFFBQUE7RUFDQSxZQUFBO0VBQ0EsbUNBQUE7QUNESjtBREtFO0VBQ0UsUUFBQTtFQUNBLFVBQUE7RUFDQSw2QkFBQTtFQUNBLGtCQUFBO0FDSEo7QURPRTtFQUNFLGVBQUE7RUFLQSxXQUFBO0VBQ0EsV0FBQTtFQUNBLFlBQUE7RUFDQSxhQUFBO0VBQ0EsaUJBQUE7RUFDQSxtQkFBQTtFQUNBLHlDQUFBO0VBQ0EsYUFBQTtFQUNBLHNCQUFBO0VBQ0EsWUFBQTtBQ1JKO0FEVUk7RUFDRSxZQUFBO0VBQ0EsZ0JBQUE7QUNSTjtBRFdJO0VBQ0UsYUFBQTtBQ1ROO0FEYUU7RUFDRSxrQkFBQTtFQUNBLG1CQUFBO0VBQ0EsWUFBQTtFQUNBLDRCQUFBO0VBQ0EsYUFBQTtFQUNBLDhCQUFBO0VBQ0EsbUJBQUE7QUNWSjtBRGFNO0VBQ0UsZ0JBQUE7RUFDQSxZQUFBO0VBQ0EsWUFBQTtFQUNBLGlCQUFBO0VBQ0EsZUFBQTtBQ1hSO0FEYVE7RUFDRSxZQUFBO0FDWFY7QURpQkU7RUFDRSxPQUFBO0VBQ0EsZ0JBQUE7RUFDQSxhQUFBO0FDZEo7QURnQkk7RUFDRSxhQUFBO0VBQ0Esc0JBQUE7RUFDQSxTQUFBO0FDZE47QURpQkk7RUFDRSxjQUFBO0VBQ0EsYUFBQTtFQUNBLG1CQUFBO0FDZk47QURpQk07RUFDRSxvQkFBQTtFQUNBLG1CQUFBO0VBQ0EsWUFBQTtBQ2ZSO0FEa0JNO0VBQ0Usc0JBQUE7RUFDQSxtQkFBQTtFQUNBLFlBQUE7QUNoQlI7QURxQkU7RUFDRSxhQUFBO0VBQ0EsMEJBQUE7RUFDQSxhQUFBO0VBQ0EsU0FBQTtBQ2xCSjtBRG9CSTtFQUNFLE9BQUE7RUFDQSxZQUFBO0VBQ0Esc0JBQUE7RUFDQSxrQkFBQTtFQUNBLFlBQUE7RUFDQSxZQUFBO0FDbEJOO0FEcUJJO0VBQ0UsaUJBQUE7RUFDQSxtQkFBQTtFQUNBLFlBQUE7RUFDQSxZQUFBO0VBQ0Esa0JBQUE7RUFDQSxlQUFBO0FDbkJOO0FEcUJNO0VBQ0UsbUJBQUE7QUNuQlIiLCJmaWxlIjoic3JjL2FwcC9jb21wb25lbnRzL2NoYXQtd2luZG93L2NoYXQtd2luZG93LmNvbXBvbmVudC5zY3NzIiwic291cmNlc0NvbnRlbnQiOlsiLmNoYXQtYnV0dG9uIHtcclxuICBwb3NpdGlvbjogZml4ZWQ7XHJcbiAgcmlnaHQ6IC0yNXB4OyAvLyDliJ3lp4vkvY3nva7lnKjlsY/luZXlpJZcclxuICBib3R0b206IDIwJTtcclxuICB3aWR0aDogNTBweDtcclxuICBoZWlnaHQ6IDUwcHg7XHJcbiAgYm9yZGVyLXJhZGl1czogNTAlIDAgMCA1MCU7IC8vIOS/ruaUueS4uuWNiuWchuW9olxyXG4gIGJhY2tncm91bmQ6IHJnYmEoNzQsIDE0NCwgMjI2LCAwLjYpO1xyXG4gIGNvbG9yOiB3aGl0ZTtcclxuICBkaXNwbGF5OiBmbGV4O1xyXG4gIGFsaWduLWl0ZW1zOiBjZW50ZXI7XHJcbiAganVzdGlmeS1jb250ZW50OiBjZW50ZXI7XHJcbiAgY3Vyc29yOiBwb2ludGVyO1xyXG4gIGJveC1zaGFkb3c6IC0ycHggMnB4IDEwcHggcmdiYSgwLDAsMCwwLjIpO1xyXG4gIHotaW5kZXg6IDEwMDA7XHJcbiAgdHJhbnNpdGlvbjogYWxsIDAuM3MgZWFzZTtcclxuICBvcGFjaXR5OiAwLjg4O1xyXG4gIHBhZGRpbmctcmlnaHQ6IDI1cHg7IC8vIOS4uuWbvuagh+eVmeWHuuepuumXtFxyXG4gIFxyXG4gIGkge1xyXG4gICAgZm9udC1zaXplOiAyNHB4O1xyXG4gICAgdHJhbnNpdGlvbjogdHJhbnNmb3JtIDAuM3MgZWFzZTtcclxuICAgIG1hcmdpbi1sZWZ0OiAtMTBweDsgLy8g6LCD5pW05Zu+5qCH5L2N572uXHJcbiAgfVxyXG4gIFxyXG4gIC8vIOm8oOagh+aCrOWBnOaXtua7keWHulxyXG4gICY6aG92ZXIge1xyXG4gICAgcmlnaHQ6IDA7XHJcbiAgICBvcGFjaXR5OiAwLjg7XHJcbiAgICBiYWNrZ3JvdW5kOiByZ2JhKDc0LCAxNDQsIDIyNiwgMC44KTtcclxuICB9XHJcbiAgXHJcbiAgLy8g5r+A5rS754q25oCB77yI6IGK5aSp56qX5Y+j5omT5byA5pe277yJXHJcbiAgJi5hY3RpdmUge1xyXG4gICAgcmlnaHQ6IDA7XHJcbiAgICBvcGFjaXR5OiAxO1xyXG4gICAgYmFja2dyb3VuZDogcmdiYSg3NCwgMTQ0LCAyMjYsIDEpO1xyXG4gICAgYm9yZGVyLXJhZGl1czogNTAlOyAvLyDmgaLlpI3kuLrlnIblvaJcclxuICB9XHJcbiAgfVxyXG4gIFxyXG4gIC5jaGF0LXdpbmRvdyB7XHJcbiAgICBwb3NpdGlvbjogZml4ZWQ7XHJcbiAgICAvLyByaWdodDogMjBweDtcclxuICAgIC8vIGJvdHRvbTogODBweDtcclxuICAgIC8vIHdpZHRoOiAzNTBweDtcclxuICAgIC8vIGhlaWdodDogNTAwcHg7XHJcbiAgICByaWdodDogNzBweDsgLy8g6LCD5pW05L2N572u77yM6YG/5YWN5LiO5oyJ6ZKu6YeN5Y+gXHJcbiAgICBib3R0b206IDIwJTtcclxuICAgIHdpZHRoOiAzNTBweDtcclxuICAgIGhlaWdodDogNTAwcHg7XHJcbiAgICBiYWNrZ3JvdW5kOiB3aGl0ZTtcclxuICAgIGJvcmRlci1yYWRpdXM6IDEwcHg7XHJcbiAgICBib3gtc2hhZG93OiAwIDVweCAxNXB4IHJnYmEoMCwwLDAsMC4yKTtcclxuICAgIGRpc3BsYXk6IGZsZXg7XHJcbiAgICBmbGV4LWRpcmVjdGlvbjogY29sdW1uO1xyXG4gICAgei1pbmRleDogOTk5O1xyXG4gICAgXHJcbiAgICAmLm1pbmltaXplZCB7XHJcbiAgICAgIGhlaWdodDogNDVweDtcclxuICAgICAgb3ZlcmZsb3c6IGhpZGRlbjtcclxuICAgIH1cclxuICAgIFxyXG4gICAgJi5oaWRkZW4ge1xyXG4gICAgICBkaXNwbGF5OiBub25lO1xyXG4gICAgfVxyXG4gIH1cclxuICBcclxuICAuY2hhdC1oZWFkZXIge1xyXG4gICAgcGFkZGluZzogMTBweCAxNXB4O1xyXG4gICAgYmFja2dyb3VuZDogIzRhOTBlMjtcclxuICAgIGNvbG9yOiB3aGl0ZTtcclxuICAgIGJvcmRlci1yYWRpdXM6IDEwcHggMTBweCAwIDA7XHJcbiAgICBkaXNwbGF5OiBmbGV4O1xyXG4gICAganVzdGlmeS1jb250ZW50OiBzcGFjZS1iZXR3ZWVuO1xyXG4gICAgYWxpZ24taXRlbXM6IGNlbnRlcjtcclxuICAgIFxyXG4gICAgLndpbmRvdy1jb250cm9scyB7XHJcbiAgICAgIGJ1dHRvbiB7XHJcbiAgICAgICAgYmFja2dyb3VuZDogbm9uZTtcclxuICAgICAgICBib3JkZXI6IG5vbmU7XHJcbiAgICAgICAgY29sb3I6IHdoaXRlO1xyXG4gICAgICAgIG1hcmdpbi1sZWZ0OiAxMHB4O1xyXG4gICAgICAgIGN1cnNvcjogcG9pbnRlcjtcclxuICAgICAgICBcclxuICAgICAgICAmOmhvdmVyIHtcclxuICAgICAgICAgIG9wYWNpdHk6IDAuODtcclxuICAgICAgICB9XHJcbiAgICAgIH1cclxuICAgIH1cclxuICB9XHJcbiAgXHJcbiAgLmNoYXQtYm9keSB7XHJcbiAgICBmbGV4OiAxO1xyXG4gICAgb3ZlcmZsb3cteTogYXV0bztcclxuICAgIHBhZGRpbmc6IDE1cHg7XHJcbiAgICBcclxuICAgIC5tZXNzYWdlcyB7XHJcbiAgICAgIGRpc3BsYXk6IGZsZXg7XHJcbiAgICAgIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47XHJcbiAgICAgIGdhcDogMTBweDtcclxuICAgIH1cclxuICAgIFxyXG4gICAgLm1lc3NhZ2Uge1xyXG4gICAgICBtYXgtd2lkdGg6IDgwJTtcclxuICAgICAgcGFkZGluZzogMTBweDtcclxuICAgICAgYm9yZGVyLXJhZGl1czogMTBweDtcclxuICAgICAgXHJcbiAgICAgICYudXNlci1tZXNzYWdlIHtcclxuICAgICAgICBhbGlnbi1zZWxmOiBmbGV4LWVuZDtcclxuICAgICAgICBiYWNrZ3JvdW5kOiAjNGE5MGUyO1xyXG4gICAgICAgIGNvbG9yOiB3aGl0ZTtcclxuICAgICAgfVxyXG4gICAgICBcclxuICAgICAgJi5haS1tZXNzYWdlIHtcclxuICAgICAgICBhbGlnbi1zZWxmOiBmbGV4LXN0YXJ0O1xyXG4gICAgICAgIGJhY2tncm91bmQ6ICNmMWYxZjE7XHJcbiAgICAgICAgY29sb3I6IGJsYWNrO1xyXG4gICAgICB9XHJcbiAgICB9XHJcbiAgfVxyXG4gIFxyXG4gIC5jaGF0LWlucHV0IHtcclxuICAgIHBhZGRpbmc6IDE1cHg7XHJcbiAgICBib3JkZXItdG9wOiAxcHggc29saWQgI2VlZTtcclxuICAgIGRpc3BsYXk6IGZsZXg7XHJcbiAgICBnYXA6IDEwcHg7XHJcbiAgICBcclxuICAgIHRleHRhcmVhIHtcclxuICAgICAgZmxleDogMTtcclxuICAgICAgcGFkZGluZzogOHB4O1xyXG4gICAgICBib3JkZXI6IDFweCBzb2xpZCAjZGRkO1xyXG4gICAgICBib3JkZXItcmFkaXVzOiA1cHg7XHJcbiAgICAgIHJlc2l6ZTogbm9uZTtcclxuICAgICAgaGVpZ2h0OiA0MHB4O1xyXG4gICAgfVxyXG4gICAgXHJcbiAgICBidXR0b24ge1xyXG4gICAgICBwYWRkaW5nOiA4cHggMTVweDtcclxuICAgICAgYmFja2dyb3VuZDogIzRhOTBlMjtcclxuICAgICAgY29sb3I6IHdoaXRlO1xyXG4gICAgICBib3JkZXI6IG5vbmU7XHJcbiAgICAgIGJvcmRlci1yYWRpdXM6IDVweDtcclxuICAgICAgY3Vyc29yOiBwb2ludGVyO1xyXG4gICAgICBcclxuICAgICAgJjpob3ZlciB7XHJcbiAgICAgICAgYmFja2dyb3VuZDogIzM1N2FiZDtcclxuICAgICAgfVxyXG4gICAgfVxyXG4gIH0iLCIuY2hhdC1idXR0b24ge1xuICBwb3NpdGlvbjogZml4ZWQ7XG4gIHJpZ2h0OiAtMjVweDtcbiAgYm90dG9tOiAyMCU7XG4gIHdpZHRoOiA1MHB4O1xuICBoZWlnaHQ6IDUwcHg7XG4gIGJvcmRlci1yYWRpdXM6IDUwJSAwIDAgNTAlO1xuICBiYWNrZ3JvdW5kOiByZ2JhKDc0LCAxNDQsIDIyNiwgMC42KTtcbiAgY29sb3I6IHdoaXRlO1xuICBkaXNwbGF5OiBmbGV4O1xuICBhbGlnbi1pdGVtczogY2VudGVyO1xuICBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjtcbiAgY3Vyc29yOiBwb2ludGVyO1xuICBib3gtc2hhZG93OiAtMnB4IDJweCAxMHB4IHJnYmEoMCwgMCwgMCwgMC4yKTtcbiAgei1pbmRleDogMTAwMDtcbiAgdHJhbnNpdGlvbjogYWxsIDAuM3MgZWFzZTtcbiAgb3BhY2l0eTogMC44ODtcbiAgcGFkZGluZy1yaWdodDogMjVweDtcbn1cbi5jaGF0LWJ1dHRvbiBpIHtcbiAgZm9udC1zaXplOiAyNHB4O1xuICB0cmFuc2l0aW9uOiB0cmFuc2Zvcm0gMC4zcyBlYXNlO1xuICBtYXJnaW4tbGVmdDogLTEwcHg7XG59XG4uY2hhdC1idXR0b246aG92ZXIge1xuICByaWdodDogMDtcbiAgb3BhY2l0eTogMC44O1xuICBiYWNrZ3JvdW5kOiByZ2JhKDc0LCAxNDQsIDIyNiwgMC44KTtcbn1cbi5jaGF0LWJ1dHRvbi5hY3RpdmUge1xuICByaWdodDogMDtcbiAgb3BhY2l0eTogMTtcbiAgYmFja2dyb3VuZDogcmdiKDc0LCAxNDQsIDIyNik7XG4gIGJvcmRlci1yYWRpdXM6IDUwJTtcbn1cblxuLmNoYXQtd2luZG93IHtcbiAgcG9zaXRpb246IGZpeGVkO1xuICByaWdodDogNzBweDtcbiAgYm90dG9tOiAyMCU7XG4gIHdpZHRoOiAzNTBweDtcbiAgaGVpZ2h0OiA1MDBweDtcbiAgYmFja2dyb3VuZDogd2hpdGU7XG4gIGJvcmRlci1yYWRpdXM6IDEwcHg7XG4gIGJveC1zaGFkb3c6IDAgNXB4IDE1cHggcmdiYSgwLCAwLCAwLCAwLjIpO1xuICBkaXNwbGF5OiBmbGV4O1xuICBmbGV4LWRpcmVjdGlvbjogY29sdW1uO1xuICB6LWluZGV4OiA5OTk7XG59XG4uY2hhdC13aW5kb3cubWluaW1pemVkIHtcbiAgaGVpZ2h0OiA0NXB4O1xuICBvdmVyZmxvdzogaGlkZGVuO1xufVxuLmNoYXQtd2luZG93LmhpZGRlbiB7XG4gIGRpc3BsYXk6IG5vbmU7XG59XG5cbi5jaGF0LWhlYWRlciB7XG4gIHBhZGRpbmc6IDEwcHggMTVweDtcbiAgYmFja2dyb3VuZDogIzRhOTBlMjtcbiAgY29sb3I6IHdoaXRlO1xuICBib3JkZXItcmFkaXVzOiAxMHB4IDEwcHggMCAwO1xuICBkaXNwbGF5OiBmbGV4O1xuICBqdXN0aWZ5LWNvbnRlbnQ6IHNwYWNlLWJldHdlZW47XG4gIGFsaWduLWl0ZW1zOiBjZW50ZXI7XG59XG4uY2hhdC1oZWFkZXIgLndpbmRvdy1jb250cm9scyBidXR0b24ge1xuICBiYWNrZ3JvdW5kOiBub25lO1xuICBib3JkZXI6IG5vbmU7XG4gIGNvbG9yOiB3aGl0ZTtcbiAgbWFyZ2luLWxlZnQ6IDEwcHg7XG4gIGN1cnNvcjogcG9pbnRlcjtcbn1cbi5jaGF0LWhlYWRlciAud2luZG93LWNvbnRyb2xzIGJ1dHRvbjpob3ZlciB7XG4gIG9wYWNpdHk6IDAuODtcbn1cblxuLmNoYXQtYm9keSB7XG4gIGZsZXg6IDE7XG4gIG92ZXJmbG93LXk6IGF1dG87XG4gIHBhZGRpbmc6IDE1cHg7XG59XG4uY2hhdC1ib2R5IC5tZXNzYWdlcyB7XG4gIGRpc3BsYXk6IGZsZXg7XG4gIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47XG4gIGdhcDogMTBweDtcbn1cbi5jaGF0LWJvZHkgLm1lc3NhZ2Uge1xuICBtYXgtd2lkdGg6IDgwJTtcbiAgcGFkZGluZzogMTBweDtcbiAgYm9yZGVyLXJhZGl1czogMTBweDtcbn1cbi5jaGF0LWJvZHkgLm1lc3NhZ2UudXNlci1tZXNzYWdlIHtcbiAgYWxpZ24tc2VsZjogZmxleC1lbmQ7XG4gIGJhY2tncm91bmQ6ICM0YTkwZTI7XG4gIGNvbG9yOiB3aGl0ZTtcbn1cbi5jaGF0LWJvZHkgLm1lc3NhZ2UuYWktbWVzc2FnZSB7XG4gIGFsaWduLXNlbGY6IGZsZXgtc3RhcnQ7XG4gIGJhY2tncm91bmQ6ICNmMWYxZjE7XG4gIGNvbG9yOiBibGFjaztcbn1cblxuLmNoYXQtaW5wdXQge1xuICBwYWRkaW5nOiAxNXB4O1xuICBib3JkZXItdG9wOiAxcHggc29saWQgI2VlZTtcbiAgZGlzcGxheTogZmxleDtcbiAgZ2FwOiAxMHB4O1xufVxuLmNoYXQtaW5wdXQgdGV4dGFyZWEge1xuICBmbGV4OiAxO1xuICBwYWRkaW5nOiA4cHg7XG4gIGJvcmRlcjogMXB4IHNvbGlkICNkZGQ7XG4gIGJvcmRlci1yYWRpdXM6IDVweDtcbiAgcmVzaXplOiBub25lO1xuICBoZWlnaHQ6IDQwcHg7XG59XG4uY2hhdC1pbnB1dCBidXR0b24ge1xuICBwYWRkaW5nOiA4cHggMTVweDtcbiAgYmFja2dyb3VuZDogIzRhOTBlMjtcbiAgY29sb3I6IHdoaXRlO1xuICBib3JkZXI6IG5vbmU7XG4gIGJvcmRlci1yYWRpdXM6IDVweDtcbiAgY3Vyc29yOiBwb2ludGVyO1xufVxuLmNoYXQtaW5wdXQgYnV0dG9uOmhvdmVyIHtcbiAgYmFja2dyb3VuZDogIzM1N2FiZDtcbn0iXX0= */"
+
+/***/ }),
+
+/***/ "./src/app/components/chat-window/chat-window.component.ts":
+/*!*****************************************************************!*\
+  !*** ./src/app/components/chat-window/chat-window.component.ts ***!
+  \*****************************************************************/
+/*! exports provided: ChatWindowComponent */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ChatWindowComponent", function() { return ChatWindowComponent; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+/* harmony import */ var _services_chat_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../services/chat.service */ "./src/app/services/chat.service.ts");
+
+
+
+var ChatWindowComponent = /** @class */ (function () {
+    function ChatWindowComponent(aiChatService) {
+        this.aiChatService = aiChatService;
+        this.isSending = false;
+        this.isVisible = false;
+        this.isMinimized = false;
+        this.messages = [];
+        this.userInput = '';
+    }
+    ChatWindowComponent.prototype.ngAfterViewChecked = function () {
+        this.scrollToBottom();
+    };
+    ChatWindowComponent.prototype.ngOnDestroy = function () {
+        this.aiChatService.disconnect();
+    };
+    ChatWindowComponent.prototype.toggleChat = function () {
+        if (this.isMinimized) {
+            this.isMinimized = false;
+        }
+        else {
+            this.isVisible = !this.isVisible;
+        }
+    };
+    ChatWindowComponent.prototype.minimizeChat = function () {
+        this.isMinimized = true;
+    };
+    ChatWindowComponent.prototype.closeChat = function () {
+        this.isVisible = false;
+    };
+    ChatWindowComponent.prototype.sendMessage = function () {
+        return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function () {
+            var userMessage, response, error_1;
+            return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__generator"])(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (!this.userInput.trim())
+                            return [2 /*return*/];
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, 4, 5]);
+                        this.isSending = true;
+                        // 添加用户消息
+                        this.messages.push({
+                            content: this.userInput,
+                            isUser: true
+                        });
+                        userMessage = this.userInput;
+                        this.userInput = '';
+                        return [4 /*yield*/, this.aiChatService.sendMessage(userMessage)];
+                    case 2:
+                        response = _a.sent();
+                        // 添加AI响应
+                        this.messages.push({
+                            content: response,
+                            isUser: false
+                        });
+                        return [3 /*break*/, 5];
+                    case 3:
+                        error_1 = _a.sent();
+                        console.error('发送消息失败:', error_1);
+                        // 显示错误消息
+                        this.messages.push({
+                            content: error_1.message || '抱歉，发生了错误，请稍后重试。',
+                            isUser: false,
+                            isError: true
+                        });
+                        return [3 /*break*/, 5];
+                    case 4:
+                        this.isSending = false;
+                        return [7 /*endfinally*/];
+                    case 5: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    ChatWindowComponent.prototype.scrollToBottom = function () {
+        try {
+            this.scrollContainer.nativeElement.scrollTop =
+                this.scrollContainer.nativeElement.scrollHeight;
+        }
+        catch (err) { }
+    };
+    Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"])([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["ViewChild"])('scrollContainer'),
+        Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__metadata"])("design:type", _angular_core__WEBPACK_IMPORTED_MODULE_1__["ElementRef"])
+    ], ChatWindowComponent.prototype, "scrollContainer", void 0);
+    ChatWindowComponent = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"])([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Component"])({
+            selector: 'app-chat-window',
+            template: __webpack_require__(/*! ./chat-window.component.html */ "./src/app/components/chat-window/chat-window.component.html"),
+            styles: [__webpack_require__(/*! ./chat-window.component.scss */ "./src/app/components/chat-window/chat-window.component.scss")]
+        }),
+        Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__metadata"])("design:paramtypes", [_services_chat_service__WEBPACK_IMPORTED_MODULE_2__["AiChatService"]])
+    ], ChatWindowComponent);
+    return ChatWindowComponent;
 }());
 
 
@@ -2775,6 +2920,102 @@ var LineChartConfig = /** @class */ (function () {
 
 /***/ }),
 
+/***/ "./src/app/services/chat.service.ts":
+/*!******************************************!*\
+  !*** ./src/app/services/chat.service.ts ***!
+  \******************************************/
+/*! exports provided: AiChatService */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AiChatService", function() { return AiChatService; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+/* harmony import */ var socket_io_client__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! socket.io-client */ "./node_modules/socket.io-client/lib/index.js");
+/* harmony import */ var socket_io_client__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(socket_io_client__WEBPACK_IMPORTED_MODULE_2__);
+
+
+
+var AiChatService = /** @class */ (function () {
+    function AiChatService() {
+        this.socket = null;
+        this.isInitialized = false;
+        this.initSocket();
+    }
+    AiChatService.prototype.initSocket = function () {
+        var _this = this;
+        try {
+            this.socket = Object(socket_io_client__WEBPACK_IMPORTED_MODULE_2__["io"])('http://localhost:3000', {
+                withCredentials: true,
+                transports: ['websocket', 'polling'],
+                autoConnect: true
+            });
+            this.socket.on('connect', function () {
+                console.log('Connected to server');
+                _this.isInitialized = true;
+            });
+            this.socket.on('connect_error', function (error) {
+                console.error('Connection error:', error);
+                _this.isInitialized = false;
+            });
+        }
+        catch (error) {
+            console.error('Socket initialization error:', error);
+            this.isInitialized = false;
+        }
+    };
+    AiChatService.prototype.sendMessage = function (message) {
+        return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function () {
+            var _this = this;
+            return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__generator"])(this, function (_a) {
+                return [2 /*return*/, new Promise(function (resolve, reject) {
+                        if (!_this.socket || !_this.isInitialized) {
+                            _this.initSocket();
+                            reject(new Error('Socket 未初始化，请稍后重试'));
+                            return;
+                        }
+                        if (!_this.socket.connected) {
+                            reject(new Error('未连接到服务器，请稍后重试'));
+                            return;
+                        }
+                        _this.socket.emit('chat_message', { message: message });
+                        // 监听响应
+                        _this.socket.once('chat_response', function (data) {
+                            resolve(data.response);
+                        });
+                        // 监听错误
+                        _this.socket.once('chat_error', function (error) {
+                            reject(error);
+                        });
+                        // 设置超时
+                        setTimeout(function () {
+                            reject(new Error('请求超时'));
+                        }, 10000);
+                    })];
+            });
+        });
+    };
+    AiChatService.prototype.disconnect = function () {
+        if (this.socket) {
+            this.socket.disconnect();
+            this.socket = null;
+            this.isInitialized = false;
+        }
+    };
+    AiChatService = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"])([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Injectable"])({
+            providedIn: 'root'
+        }),
+        Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__metadata"])("design:paramtypes", [])
+    ], AiChatService);
+    return AiChatService;
+}());
+
+
+
+/***/ }),
+
 /***/ "./src/app/services/http-error-handler.service.ts":
 /*!********************************************************!*\
   !*** ./src/app/services/http-error-handler.service.ts ***!
@@ -2899,6 +3140,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+// 用于与服务器通信
 var ChatService = /** @class */ (function () {
     function ChatService(vizSocket) {
         this.vizSocket = vizSocket;

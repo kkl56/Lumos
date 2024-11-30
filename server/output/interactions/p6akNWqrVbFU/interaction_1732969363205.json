@@ -1,0 +1,15 @@
+{
+  "timestamp": 1732969363205,
+  "interaction_type": "toggle_attribute_bookmark_awareness_panel",
+  "element_data": {
+    "attribute": "Default History",
+    "isBookmarked": true,
+    "eventX": null,
+    "eventY": null
+  },
+  "app_info": {
+    "mode": "credit_risk.csv",
+    "type": "ADMIN",
+    "level": "live"
+  }
+}

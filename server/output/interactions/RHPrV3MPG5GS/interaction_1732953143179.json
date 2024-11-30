@@ -1,0 +1,13 @@
+{
+  "timestamp": 1732953143179,
+  "interaction_type": "all_filters_removed",
+  "element_data": {
+    "eventX": null,
+    "eventY": null
+  },
+  "app_info": {
+    "mode": "credit_risk.csv",
+    "type": "ADMIN",
+    "level": "live"
+  }
+}

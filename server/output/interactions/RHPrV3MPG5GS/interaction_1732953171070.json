@@ -1,0 +1,14 @@
+{
+  "timestamp": 1732953171070,
+  "interaction_type": "filter_added",
+  "element_data": {
+    "attribute": "Loan Amount",
+    "eventX": null,
+    "eventY": null
+  },
+  "app_info": {
+    "mode": "credit_risk.csv",
+    "type": "ADMIN",
+    "level": "live"
+  }
+}

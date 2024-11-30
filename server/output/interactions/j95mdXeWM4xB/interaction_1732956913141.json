@@ -1,0 +1,16 @@
+{
+  "timestamp": 1732956913141,
+  "interaction_type": "axis_attribute_changed",
+  "element_data": {
+    "axisChanged": "x_axis",
+    "x": "Annual Income",
+    "y": null,
+    "eventX": null,
+    "eventY": null
+  },
+  "app_info": {
+    "mode": "credit_risk.csv",
+    "type": "ADMIN",
+    "level": "live"
+  }
+}

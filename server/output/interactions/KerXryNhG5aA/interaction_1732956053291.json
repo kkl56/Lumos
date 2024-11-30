@@ -1,0 +1,22 @@
+{
+  "timestamp": 1732956053291,
+  "interaction_type": "mouseover_item",
+  "element_data": {
+    "id": "p227",
+    "x": {
+      "name": "Home Ownership Type",
+      "value": "Own"
+    },
+    "y": {
+      "name": "Age",
+      "value": 21
+    },
+    "eventX": 707,
+    "eventY": 208
+  },
+  "app_info": {
+    "mode": "credit_risk.csv",
+    "type": "ADMIN",
+    "level": "live"
+  }
+}

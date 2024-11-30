@@ -21,15 +21,33 @@ import { ChatService } from "./services/socket.service";
 import { UtilsService } from "./services/utils.service";
 import { MainActivityComponent } from "./main-activity/component";
 
-const config: SocketIoConfig = {
+import { ChatWindowComponent } from './components/chat-window/chat-window.component';
+import { AiChatService } from './services/chat.service';
+
+// const config: SocketIoConfig = {
+//   url: DeploymentConfig.SERVER_URL,
+//   options: { timeout: 60000, autoConnect: false },
+// };
+
+const config: SocketIoConfig = { 
+  // url: 'http://localhost:3000', 
   url: DeploymentConfig.SERVER_URL,
-  options: { timeout: 60000, autoConnect: false },
+  options: {
+    // transports: ['websocket'],
+    autoConnect: false,
+    reconnection: true,
+    reconnectionDelay: 1000,
+    reconnectionDelayMax: 5000,
+    reconnectionAttempts: 5
+  }
 };
+
 
 @NgModule({
   declarations: [
     AppComponent,
-    MainActivityComponent
+    MainActivityComponent,
+    ChatWindowComponent,
   ],
   imports: [
     NgMultiSelectDropDownModule.forRoot(),
@@ -52,6 +70,7 @@ const config: SocketIoConfig = {
     MessageService,
     ChatService,
     UtilsService,
+    AiChatService,
   ],
   bootstrap: [AppComponent],
 })

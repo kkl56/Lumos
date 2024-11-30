@@ -7,6 +7,7 @@ from pathlib import Path
 import logging
 
 import aiofiles
+#from flask import request
 import pandas as pd
 import socketio
 from aiohttp import web
@@ -15,6 +16,7 @@ from aiohttp_index import IndexMiddleware
 import bias
 import bias_util
 
+import aiohttp_cors
 # 设置日志
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
@@ -37,10 +39,38 @@ COMPUTE_BIAS_FOR_TYPES = [
     "click_remove_item",
 ]
 
-SIO = socketio.AsyncServer(cors_allowed_origins='*')
-APP = web.Application(middlewares=[IndexMiddleware()])
+
+# # CORS 中间件
+# @web.middleware
+# async def cors_middleware(request, handler):
+#     if request.method == 'OPTIONS':
+#         response = web.Response()
+#     else:
+#         response = await handler(request)
+    
+#     response.headers.update({
+#         'Access-Control-Allow-Origin': 'http://localhost:4200',  # 指定允许的源
+#         'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+#         'Access-Control-Allow-Headers': 'Content-Type',
+#         'Access-Control-Allow-Credentials': 'true'
+#     })
+#     return response
+
+
+#SIO = socketio.AsyncServer(cors_allowed_origins='*')
+#APP = web.Application(middlewares=[IndexMiddleware(), cors_middleware])
+# 设置 Socket.IO
+#SIO = socketio.AsyncServer(cors_allowed_origins='http://localhost:4200')  # 指定允许的源
+SIO = socketio.AsyncServer(cors_allowed_origins='*',
+   async_mode='aiohttp',
+   logger=True,
+   engineio_logger=True)
+APP = web.Application()
 SIO.attach(APP)
 
+
+
+@SIO.event
 async def handle_ui_files(request):
     # Extract the requested file name
     fname = request.match_info.get('fname', 'index.html')
@@ -60,11 +90,77 @@ async def handle_ui_files(request):
     except FileNotFoundError:
         raise web.HTTPNotFound()
 
+
+# ai路由
+#routes = web.RouteTableDef()
+#@routes.post('/api/chat') 
+
+
+#routes = web.RouteTableDef()
+@SIO.event
+async def send_chat_message(sid, data):  # 确保事件名称匹配
+    try:
+        logger.info(f'Received message from {sid}: {data}')
+        message = data.get('message', '')
+        
+        # 发送响应
+        response = {
+            'response': f'服务器收到消息: {message}'
+        }
+        logger.info(f'Sending response to {sid}: {response}')
+        await SIO.emit('receive_chat_response', response, room=sid)
+        
+    except Exception as e:
+        logger.error(f'Error processing message: {str(e)}')
+        await SIO.emit('chat_error', {'error': str(e)}, room=sid)
+
+
+# async def handle_chat(request):
+#     try:
+#         data = await request.json()
+#         message = data.get('message')
+        
+#         # 添加错误处理和日志
+#         if not message:
+#             logger.error("收到空消息")
+#             return web.json_response({
+#                 'error': '消息不能为空'
+#             }, status=400)
+#         # 添加日志记录
+#         logger.warning(f"收到聊天消息: {message}")
+        
+#         # TODO: 实现实际的 AI 处理逻辑
+#         response = "这是一个测试响应"  # 临时响应
+                
+
+
+
+    #     # TODO: 实现与 AI 的通信逻辑
+        
+    #     return web.json_response({
+    #         'response': response
+    #     })
+    # except Exception as e:
+    #     logger.error(f"处理聊天消息时出错: {str(e)}")
+    #     return web.json_response({
+    #         'error': '服务器内部错误'
+    #     }, status=500)
+
+
+
+# 注册路由
+#APP.add_routes(routes)
+
+
+
+
 # Static file serving
 APP.router.add_static('/static/', path=str(os.path.join(os.path.dirname(__file__), 'public')), name='static')
 
 # Dynamic routing for all paths, similar to Flask's catch-all routes
 APP.router.add_route('GET', '/{fname:.*}', handle_ui_files)
+
+
 
 @SIO.event
 async def connect(sid, environ):
@@ -263,11 +359,13 @@ async def save_interaction_data(data, filename):
 
 
 
+
 if __name__ == "__main__":
     try:
         bias.precompute_distributions()
         port = int(os.environ.get("PORT", 3000))
         logger.warning(f"Starting server on port {port}")
+        
         web.run_app(APP, port=port)
     except Exception as e:
         logger.error(f"Server startup error: {e}")

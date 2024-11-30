@@ -1,0 +1,16 @@
+{
+  "timestamp": 1732956911973,
+  "interaction_type": "chart_type_changed",
+  "element_data": {
+    "chartChanged": "scatterplot",
+    "x": null,
+    "y": null,
+    "eventX": null,
+    "eventY": null
+  },
+  "app_info": {
+    "mode": "credit_risk.csv",
+    "type": "ADMIN",
+    "level": "live"
+  }
+}

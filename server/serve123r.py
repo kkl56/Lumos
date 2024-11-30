@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 import logging
 
+#from flask import request
 import pandas as pd
 import socketio
 from aiohttp import web
@@ -62,6 +63,40 @@ APP.router.add_static('/static/', path=str(os.path.join(os.path.dirname(__file__
 
 # Dynamic routing for all paths, similar to Flask's catch-all routes
 APP.router.add_route('GET', '/{fname:.*}', handle_ui_files)
+
+
+# ai路由
+@APP.route('/api/chat', methods=['POST'])
+async def handle_chat():
+    try:
+        data = await request.json()
+        message = data.get('message')
+        
+        # 添加错误处理和日志
+        if not message:
+            logger.error("收到空消息")
+            return web.json_response({
+                'error': '消息不能为空'
+            }, status=400)
+        # 添加日志记录
+        logger.warning(f"收到聊天消息: {message}")
+        
+        # TODO: 实现实际的 AI 处理逻辑
+        response = "这是一个测试响应"  # 临时响应
+                
+
+
+
+        # TODO: 实现与 AI 的通信逻辑
+        
+        return web.json_response({
+            'response': response
+        })
+    except Exception as e:
+        logger.error(f"处理聊天消息时出错: {str(e)}")
+        return web.json_response({
+            'error': '服务器内部错误'
+        }, status=500)
 
 @SIO.event
 async def connect(sid, environ):

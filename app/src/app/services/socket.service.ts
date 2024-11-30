@@ -3,6 +3,7 @@ import { Injectable } from "@angular/core";
 import { Socket } from "ngx-socket-io";
 import { map } from "rxjs/operators";
 
+// 用于与服务器通信
 @Injectable()
 export class ChatService {
   constructor(private vizSocket: Socket) {}

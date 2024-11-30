@@ -1,0 +1,37 @@
+<div class="chat-button" (click)="toggleChat()">
+    <i class="fas fa-robot"></i>
+  </div>
+  
+  <div class="chat-window" [class.minimized]="isMinimized" [class.hidden]="!isVisible">
+    <div class="chat-header">
+      <span>AI Assistant</span>
+      <div class="window-controls">
+        <button (click)="minimizeChat()" class="minimize-btn">
+          <i class="fas fa-minus"></i>
+        </button>
+        <button (click)="closeChat()" class="close-btn">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+    
+    <div class="chat-body">
+      <div class="messages" #scrollContainer>
+        <div *ngFor="let message of messages" 
+             [class.user-message]="message.isUser"
+             [class.ai-message]="!message.isUser"
+             class="message">
+          {{ message.content }}
+        </div>
+      </div>
+    </div>
+  
+    <div class="chat-input">
+      <textarea 
+        [(ngModel)]="userInput"
+        (keyup.enter)="sendMessage()"
+        placeholder="输入消息..."
+      ></textarea>
+      <button (click)="sendMessage()">发送</button>
+    </div>
+  </div>
