@@ -1817,9 +1817,9 @@ var SessionPage = /** @class */ (function () {
         this["app-live"] = { completed: false, timestamp: 0 };
         this["participantId"] = participantId; // 12 character long unique identifier
         this["appMode"] = "colleges.csv"; // Name of the dataset
-        this["appLevel"] = "live"; // Practice / Live
+        this["appLevel"] = "colleges"; // Practice / Live
         // "appType": string = this.utils.generateRandomAppType(); // CONTROL / AWARENESS
-        this["appType"] = "AWARENESS"; // CONTROL | ADMIN | AWARENESS
+        this["appType"] = "ADMIN"; // CONTROL | ADMIN | AWARENESS
     }
     SessionPage = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"])([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_2__["Injectable"])(),

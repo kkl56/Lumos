@@ -1,9 +1,11 @@
 """Server for interfacing with the frontend.
 """
+import json
 import os
 from pathlib import Path
 import logging
 
+import aiofiles
 import pandas as pd
 import socketio
 from aiohttp import web
@@ -140,7 +142,7 @@ async def on_interaction(sid, data):
         interaction_type = data["interactionType"] # Interaction type - eg. hover, click
 
         #debug
-        print(data)
+        # print(data)
         # Let these get updated everytime an interaction occurs, to handle the
         #   worst case scenario of random restart of the server.
         CLIENT_SOCKET_ID_PARTICIPANT_MAPPING[sid] = pid
@@ -168,6 +170,49 @@ async def on_interaction(sid, data):
             CLIENTS[pid]["bias_logs"] = []
             CLIENTS[pid]["response_list"] = []
             logger.warning(f"Reset logs for participant {pid} due to mode/level change")
+
+
+        # 打印数据
+        print("participant_id:")
+        print(pid)
+        print("interaction_type:")
+        print(interaction_type)
+        # 保存json
+        interaction_data = {
+            "timestamp": bias_util.get_current_time(),  # 记录时间戳
+            "interaction_type": interaction_type,       # 交互类型（点击/悬停）
+            "element_data": data.get("data", {}),      # 元素数据（ID、标签等）
+            "app_info": {                              # 应用信息
+                "mode": app_mode,
+                "type": app_type,
+                "level": app_level
+            }
+        }
+        print("interaction_data:")
+        print(interaction_data)
+
+        # 3. 创建保存目录结构
+        # 格式: output/interactions/用户ID/
+        interaction_dir = Path("output/interactions") / str(pid)
+        interaction_dir.mkdir(parents=True, exist_ok=True)  # 创建多级目录
+
+        # 4. 生成文件名（使用时间戳确保唯一性）
+        # 格式: interaction_时间戳.json
+        filename = interaction_dir / f"interaction_{interaction_data['timestamp']}.json"
+        """
+        async with aiofiles.open(filename, 'w', encoding='utf-8') as f:
+            await f.write(json.dumps(interaction_data, ensure_ascii=False, indent=2))
+        """
+        # 5. 将数据写入JSON文件
+        async with aiofiles.open(filename, 'w', encoding='utf-8') as f:
+            # ensure_ascii=False 确保中文正确显示
+            # indent=2 使JSON格式化便于阅读
+            await f.write(json.dumps(interaction_data, ensure_ascii=False, indent=2))
+
+        print(f"Saved interaction data to: {filename}")
+
+
+
 
         # record response to interaction
         response = {}
